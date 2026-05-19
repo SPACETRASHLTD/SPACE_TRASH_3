@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { serviceClient } from "@/lib/supabase";
 import { requireServerEnv } from "@/lib/env";
 import {
   buildDayBreakdown,
   buildMonthView,
+  bucketPendingOffersByDay,
   dayHeader,
   monthKey,
   monthRange,
@@ -13,6 +15,7 @@ import {
   prevMonthKey,
   type ArtistLite,
   type BusyBlock,
+  type PendingOffer,
 } from "@/lib/availability";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +42,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   const monthAnchor = parseMonthKey(monthParam);
   const { fromIso, toIso } = monthRange(monthAnchor);
 
-  const [artistsRes, blocksRes] = await Promise.all([
+  const [artistsRes, blocksRes, offersRes] = await Promise.all([
     sb
       .from("artists")
       .select("id, full_name, phone_e164, status")
@@ -51,10 +54,19 @@ export default async function CalendarPage({ searchParams }: PageProps) {
       .select("artist_id, start_ts, end_ts, source")
       .gte("end_ts", fromIso)
       .lt("start_ts", toIso),
+    sb
+      .from("offers")
+      .select("id, artist_id, gig_start_ts, gig_end_ts, venue, expires_at")
+      .eq("agency_id", agencyId)
+      .eq("status", "pending")
+      .gte("gig_end_ts", fromIso)
+      .lt("gig_start_ts", toIso),
   ]);
 
   const artists = (artistsRes.data ?? []) as ArtistLite[];
   const blocks = (blocksRes.data ?? []) as BusyBlock[];
+  const pendingOffers = (offersRes.data ?? []) as PendingOffer[];
+  const artistById = new Map(artists.map((a) => [a.id, a]));
 
   if (artists.length === 0) {
     return (
@@ -71,6 +83,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   }
 
   const cells = buildMonthView(monthAnchor, blocks, tz);
+  const pendingByDay = bucketPendingOffersByDay(cells, pendingOffers, tz);
   const totalArtists = artists.length;
   const today = format(new Date(), "yyyy-MM-dd");
 
@@ -78,6 +91,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   const dayBreakdown = selectedDayKey
     ? buildDayBreakdown(selectedDayKey, artists, blocks, tz)
     : null;
+  const dayPendingOffers = selectedDayKey ? pendingByDay.get(selectedDayKey) ?? [] : [];
 
   const monthLabel = format(monthAnchor, "MMMM yyyy");
 
@@ -126,6 +140,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
             const utilization = totalArtists === 0 ? 0 : available / totalArtists;
             const isToday = cell.key === today;
             const isSelected = cell.key === selectedDayKey;
+            const pendingCount = pendingByDay.get(cell.key)?.length ?? 0;
             const ratioColor =
               utilization >= 0.6
                 ? "bg-green-500/70"
@@ -152,6 +167,15 @@ export default async function CalendarPage({ searchParams }: PageProps) {
                   >
                     {format(cell.date, "d")}
                   </span>
+                  {cell.inMonth && pendingCount > 0 ? (
+                    <span
+                      title={`${pendingCount} pending offer${pendingCount === 1 ? "" : "s"}`}
+                      className="inline-flex items-center gap-1 rounded bg-blue-900/60 px-1.5 py-0.5 text-[10px] font-medium text-blue-200"
+                    >
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-400" />
+                      {pendingCount}
+                    </span>
+                  ) : null}
                 </div>
                 {cell.inMonth ? (
                   <div className="mt-auto">
@@ -178,10 +202,12 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {dayBreakdown ? (
+      {dayBreakdown && selectedDayKey ? (
         <DayPanel
-          dayKey={selectedDayKey!}
+          dayKey={selectedDayKey}
           breakdown={dayBreakdown}
+          pendingOffers={dayPendingOffers}
+          artistById={artistById}
           monthAnchor={monthAnchor}
           tz={tz}
         />
@@ -197,25 +223,67 @@ export default async function CalendarPage({ searchParams }: PageProps) {
 function DayPanel({
   dayKey,
   breakdown,
+  pendingOffers,
+  artistById,
   monthAnchor,
   tz,
 }: {
   dayKey: string;
   breakdown: ReturnType<typeof buildDayBreakdown>;
+  pendingOffers: PendingOffer[];
+  artistById: Map<string, ArtistLite>;
   monthAnchor: Date;
   tz: string;
 }) {
+  const availableIds = breakdown.available.map((a) => a.id).join(",");
+  const composeHref = availableIds
+    ? `/offers/new?date=${dayKey}&artists=${encodeURIComponent(availableIds)}`
+    : `/offers/new?date=${dayKey}`;
+
   return (
     <section className="mt-6 rounded-lg border border-neutral-800 bg-neutral-950">
       <header className="flex items-center justify-between border-b border-neutral-800 px-5 py-3">
         <h2 className="text-lg font-semibold">{dayHeader(dayKey, tz)}</h2>
-        <Link
-          href={`/calendar?month=${monthKey(monthAnchor)}`}
-          className="text-sm text-neutral-400 hover:text-neutral-200"
-        >
-          Close ×
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href={composeHref}
+            className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500"
+          >
+            Make offer for this day →
+          </Link>
+          <Link
+            href={`/calendar?month=${monthKey(monthAnchor)}`}
+            className="text-sm text-neutral-400 hover:text-neutral-200"
+          >
+            Close ×
+          </Link>
+        </div>
       </header>
+
+      {pendingOffers.length > 0 ? (
+        <div className="border-b border-neutral-800 bg-blue-950/20 px-5 py-3">
+          <h3 className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-300">
+            <span className="inline-block h-2 w-2 rounded-full bg-blue-400" />
+            Pending offers out · {pendingOffers.length}
+          </h3>
+          <ul className="space-y-1 text-sm">
+            {pendingOffers.map((o) => {
+              const artist = artistById.get(o.artist_id);
+              const expires = formatInTimeZone(new Date(o.expires_at), tz, "MMM d, h:mm a");
+              return (
+                <li key={o.id} className="flex items-center justify-between rounded bg-neutral-900 px-3 py-1.5">
+                  <span className="font-medium text-neutral-100">
+                    {artist?.full_name ?? "(unknown artist)"}
+                  </span>
+                  <span className="text-xs text-neutral-400">
+                    {o.venue ? `${o.venue} · ` : ""}expires {expires}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="grid gap-6 p-5 md:grid-cols-2">
         <div>

@@ -13,7 +13,7 @@ import {
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: Promise<{ date?: string; showAll?: string }>;
+  searchParams: Promise<{ date?: string; showAll?: string; artists?: string }>;
 }
 
 async function createOffers(formData: FormData) {
@@ -80,10 +80,16 @@ async function createOffers(formData: FormData) {
 }
 
 export default async function NewOfferPage({ searchParams }: PageProps) {
-  const { date: dateParam, showAll } = await searchParams;
+  const { date: dateParam, showAll, artists: artistsParam } = await searchParams;
   const today = format(new Date(), "yyyy-MM-dd");
   const date = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : today;
   const showAllFlag = showAll === "1";
+  const preSelectedIds = new Set(
+    (artistsParam ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)),
+  );
 
   const agencyId = requireServerEnv("AGENCY_ID");
   const sb = serviceClient();
@@ -119,6 +125,7 @@ export default async function NewOfferPage({ searchParams }: PageProps) {
 
   const displayedArtists = showAllFlag ? artists : breakdown.available;
   const dayLabel = format(parseISO(`${date}T12:00:00Z`), "EEEE, MMMM d, yyyy");
+  const allAvailableIds = breakdown.available.map((a) => a.id).join(",");
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -161,14 +168,25 @@ export default async function NewOfferPage({ searchParams }: PageProps) {
               </h2>
               <p className="mt-1 text-xs text-neutral-500">
                 {dayLabel} · {breakdown.available.length} available · {breakdown.busy.length} busy
+                {preSelectedIds.size > 0 ? ` · ${preSelectedIds.size} pre-selected` : ""}
               </p>
             </div>
-            <a
-              href={`/offers/new?date=${date}&showAll=${showAllFlag ? "0" : "1"}`}
-              className="text-xs text-blue-400 hover:underline"
-            >
-              {showAllFlag ? "Hide busy artists" : "Show all artists"}
-            </a>
+            <div className="flex items-center gap-3 text-xs">
+              {breakdown.available.length > 0 ? (
+                <a
+                  href={`/offers/new?date=${date}${showAllFlag ? "&showAll=1" : ""}&artists=${encodeURIComponent(allAvailableIds)}`}
+                  className="text-blue-400 hover:underline"
+                >
+                  Select all available
+                </a>
+              ) : null}
+              <a
+                href={`/offers/new?date=${date}&showAll=${showAllFlag ? "0" : "1"}${artistsParam ? `&artists=${encodeURIComponent(artistsParam)}` : ""}`}
+                className="text-blue-400 hover:underline"
+              >
+                {showAllFlag ? "Hide busy" : "Show all"}
+              </a>
+            </div>
           </header>
 
           {displayedArtists.length === 0 ? (
@@ -203,6 +221,7 @@ export default async function NewOfferPage({ searchParams }: PageProps) {
                         type="checkbox"
                         name="artist_ids"
                         value={a.id}
+                        defaultChecked={preSelectedIds.has(a.id)}
                         className="h-4 w-4 rounded border-neutral-600 bg-neutral-900 text-blue-600 focus:ring-blue-500"
                       />
                       <div className="flex-1">

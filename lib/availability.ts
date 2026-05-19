@@ -24,6 +24,15 @@ export interface ArtistLite {
   status: string;
 }
 
+export interface PendingOffer {
+  id: string;
+  artist_id: string;
+  gig_start_ts: string;
+  gig_end_ts: string;
+  venue: string | null;
+  expires_at: string;
+}
+
 /**
  * A month's worth of day-keyed metadata used to render the calendar grid.
  * Day keys are ISO dates in the agency's timezone (YYYY-MM-DD).
@@ -73,6 +82,28 @@ export function buildMonthView(
   }
 
   return cells;
+}
+
+/**
+ * Per-day bucket of pending offers. Same TZ logic as buildMonthView.
+ */
+export function bucketPendingOffersByDay(
+  cells: MonthViewDay[],
+  offers: PendingOffer[],
+  tz: string,
+): Map<string, PendingOffer[]> {
+  const out = new Map<string, PendingOffer[]>();
+  for (const cell of cells) out.set(cell.key, []);
+  for (const o of offers) {
+    const startKey = formatInTimeZone(parseISO(o.gig_start_ts), tz, "yyyy-MM-dd");
+    const endKey = formatInTimeZone(parseISO(o.gig_end_ts), tz, "yyyy-MM-dd");
+    for (const cell of cells) {
+      if (cell.key >= startKey && cell.key <= endKey) {
+        out.get(cell.key)!.push(o);
+      }
+    }
+  }
+  return out;
 }
 
 /**
