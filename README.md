@@ -66,7 +66,14 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 ### 4. Seed the agency row
 
-After applying migrations, insert one row into the `agencies` table and copy its UUID into `AGENCY_ID`. There's a seed script in `supabase/migrations/seed.sql` (added in a later slab).
+After applying migrations, run the seed script. It inserts one row into
+the `agencies` table and prints the UUID for you to copy into `AGENCY_ID`.
+
+```bash
+node --env-file=.env.local scripts/seed-agency.mjs "Your Agency Name" "America/New_York"
+```
+
+Timezone is optional (defaults to `America/New_York`). Use any IANA name.
 
 ### 5. Run
 
