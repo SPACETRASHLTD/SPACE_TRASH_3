@@ -1,9 +1,11 @@
 # Supabase Edge Functions
 
-Two functions in this directory:
+Four functions in this directory:
 
-- **`poll-availability/`** — cron-triggered every 15 min. Reads each artist's encrypted Google refresh token, queries the FreeBusy API, replaces `source='google'` rows in `busy_blocks`. Per-artist failures are isolated and recorded in `google_tokens.last_error`.
+- **`poll-availability/`** — cron every 15 min. Reads each artist's encrypted Google refresh token, queries the FreeBusy API, replaces `source='google'` rows in `busy_blocks`. Per-artist failures are isolated and recorded in `google_tokens.last_error`.
 - **`ical-feed/`** — public HTTP endpoint at `/functions/v1/ical-feed/<token>.ics`. Returns busy-only `.ics` content. The token in the URL is the only auth (`verify_jwt` is disabled on deploy).
+- **`dispatch-offers/`** — cron every 1 min. Picks up `draft` offers, sends SMS via Twilio, flips them to `pending`. **Refuses to send unless `OFFERS_ALLOW_DISPATCH=1`** — safety toggle so dev doesn't surprise-text artists.
+- **`expire-offers/`** — cron every 5 min. Flips `pending` offers past `expires_at` to `expired`.
 
 Shared code lives in `_shared/`:
 - `crypto.ts` — AES-256-GCM decrypt (Web Crypto, mirror of `/lib/crypto.ts`)
@@ -19,6 +21,8 @@ supabase link --project-ref <your-project-ref>
 
 supabase functions deploy poll-availability
 supabase functions deploy ical-feed --no-verify-jwt
+supabase functions deploy dispatch-offers
+supabase functions deploy expire-offers
 ```
 
 ## Secrets
@@ -27,8 +31,16 @@ supabase functions deploy ical-feed --no-verify-jwt
 supabase secrets set \
   GOOGLE_CLIENT_ID=... \
   GOOGLE_CLIENT_SECRET=... \
-  TOKEN_ENCRYPTION_KEY=...
+  TOKEN_ENCRYPTION_KEY=... \
+  TWILIO_ACCOUNT_SID=... \
+  TWILIO_AUTH_TOKEN=... \
+  TWILIO_FROM_NUMBER=... \
+  NEXT_PUBLIC_APP_URL=https://gigs.<your-agency>.com \
+  OFFERS_ALLOW_DISPATCH=1
 ```
+
+`OFFERS_ALLOW_DISPATCH=0` (or unset) makes `dispatch-offers` a no-op.
+Flip to `1` only after Twilio + 10DLC are configured.
 
 `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are auto-injected by Supabase.
 
