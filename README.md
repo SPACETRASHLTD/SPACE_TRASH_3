@@ -109,10 +109,31 @@ Artists' Google Calendar **event details never leave Google**. We use the FreeBu
 
 ## Status
 
-- [ ] Phase 0 — Prerequisites (Twilio 10DLC, Google OAuth, Overture API key)
-- [ ] Phase 1 — Calendar sync (Google FreeBusy → private .ics → Overture)
-- [ ] Phase 2 — Agent availability dashboard
-- [ ] Phase 3 — SMS offer flow with 24h expiry
-- [ ] Phase 4 — Auto-cascade + polish
+Code is complete for Phases 1–3. **Nothing has been run live yet** — needs Supabase + Google + Twilio + Overture provisioning before it works against real data.
+
+- [ ] **Phase 0** — Prerequisites (external services, **action items for you**)
+  - [ ] Supabase project created + migrations applied + edge functions deployed (see `supabase/functions/README.md`)
+  - [ ] Google Cloud project: Calendar API enabled, OAuth client created, redirect URI configured
+  - [ ] Twilio account + phone number + A2P 10DLC campaign registered (1–4 week wait)
+  - [ ] Overture API key obtained + endpoint shapes pulled from the docs PDF in your friend's Overture Settings page
+- [x] **Phase 1** — Calendar sync (Google FreeBusy → private .ics → Overture). Artist OAuth flow, encrypted refresh tokens, 15-min poll cron, per-artist iCal feed served from edge function. Privacy scope: `calendar.freebusy` only.
+- [x] **Phase 2** — Agent availability dashboard. Month grid with utilization bars + pending-offer badges. Day-detail panel with available / busy / pending sections. Make-offer CTA links straight into composer with date + artists pre-filled. *(Note: Overture sync-back into `busy_blocks` is stubbed — needs the API docs to finish.)*
+- [x] **Phase 3** — SMS offer flow with 24h expiry. Composer with available-first artist picker, batch creation, public mobile accept/decline pages, Twilio dispatch edge function (safety-gated by `OFFERS_ALLOW_DISPATCH=1`), expiry cron. Race-safe acceptance via partial unique index on pending offers.
+- [ ] **Phase 4** — Polish: auto-cascade (artist B gets offered if A declines/expires), audit log, agent morning digest, Supabase Auth (replacing the HTTP Basic Auth placeholder), Overture API client implementation.
 
 See `/root/.claude/plans/ok-i-just-spoke-encapsulated-garden.md` for the full plan.
+
+## First-run checklist
+
+1. `npm install`
+2. Create Supabase project, copy URL + service-role key into `.env.local`
+3. Create Google Cloud OAuth client (Calendar API enabled), set redirect URI to `${NEXT_PUBLIC_APP_URL}/api/auth/google/callback`, copy creds
+4. Generate `TOKEN_ENCRYPTION_KEY`: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
+5. Set `AGENT_PASSWORD` (anything strong)
+6. Apply migrations: `supabase db push` (or paste `supabase/migrations/*.sql` into the SQL editor)
+7. Seed agency: `node --env-file=.env.local scripts/seed-agency.mjs "Lecky & Co."` — copy printed UUID into `AGENCY_ID`
+8. Deploy edge functions: `supabase functions deploy poll-availability && supabase functions deploy ical-feed --no-verify-jwt && supabase functions deploy dispatch-offers && supabase functions deploy expire-offers`
+9. Set edge function secrets: `supabase secrets set GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... TOKEN_ENCRYPTION_KEY=...`
+10. Schedule the crons in Supabase Studio (see `supabase/functions/README.md` for the SQL)
+11. `npm run dev`, open http://localhost:3000/artists, invite yourself as the first artist, walk through the OAuth flow end-to-end
+12. Twilio: leave `OFFERS_ALLOW_DISPATCH=0` until 10DLC clears. Drafts will pile up safely in the meantime.
