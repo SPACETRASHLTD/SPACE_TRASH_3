@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Booking Bot · Brief</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-1: #111111;
+    --bg-2: #161616;
+    --bg-3: #1c1c1c;
+    --border: #262626;
+    --border-strong: #333333;
+    --fg: #fafafa;
+    --fg-2: #c4c4c4;
+    --fg-3: #8a8a8a;
+    --fg-4: #5a5a5a;
+    --blue: #3b82f6;
+    --blue-dim: #1e3a8a;
+    --green: #22c55e;
+    --green-dim: #14532d;
+    --orange: #f97316;
+    --orange-dim: #7c2d12;
+    --red: #ef4444;
+    --red-dim: #7f1d1d;
+    --purple: #a855f7;
+    --yellow: #eab308;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .wrap { max-width: 920px; margin: 0 auto; padding: 80px 32px 120px; }
+
+  /* ── Hero ───────────────────────────────────────────── */
+  .kicker {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--fg-3);
+    text-transform: uppercase;
+  }
+  h1 {
+    font-size: 56px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    margin: 14px 0 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #b8b8b8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .lede {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--fg-2);
+    max-width: 640px;
+  }
+  .meta {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 36px;
+    color: var(--fg-3);
+    font-size: 13px;
+  }
+  .meta strong { color: var(--fg); font-weight: 600; }
+
+  /* ── Generic section ────────────────────────────────── */
+  section { margin-top: 96px; }
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    margin: 0 0 24px;
+  }
+  h3 {
+    font-size: 32px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: var(--fg);
+  }
+  .p { color: var(--fg-2); font-size: 17px; line-height: 1.6; max-width: 680px; }
+  .p + .p { margin-top: 12px; }
+
+  /* ── The Problem cards ──────────────────────────────── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 32px;
+  }
+  .card {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card .num {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--red);
+    text-transform: uppercase;
+  }
+  .card h4 {
+    margin: 8px 0 8px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--fg);
+    line-height: 1.3;
+  }
+  .card p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--fg-3); }
+
+  /* ── Mockups ────────────────────────────────────────── */
+  .mockup {
+    margin-top: 28px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.02) inset;
+  }
+  .mockup-chrome {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 14px;
+    background: #0c0c0c;
+    border-bottom: 1px solid var(--border);
+  }
+  .mockup-chrome .dot { height: 11px; width: 11px; border-radius: 50%; background: #2a2a2a; }
+  .mockup-chrome .dot:nth-child(1) { background: #e25656; }
+  .mockup-chrome .dot:nth-child(2) { background: #d6a437; }
+  .mockup-chrome .dot:nth-child(3) { background: #4caf50; }
+  .mockup-chrome .url {
+    margin-left: 18px;
+    flex: 1;
+    text-align: left;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11px;
+    color: var(--fg-4);
+  }
+
+  /* Calendar mockup */
+  .cal {
+    padding: 22px;
+  }
+  .cal-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 18px;
+  }
+  .cal-head h5 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .cal-head .sub { color: var(--fg-3); font-size: 12px; margin-top: 4px; }
+  .cal-nav { display: flex; gap: 6px; }
+  .cal-nav button {
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--fg-2);
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-family: inherit;
+  }
+  .cal-grid {
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .cal-weekdays, .cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+  .cal-weekdays {
+    background: var(--bg-2);
+    color: var(--fg-4);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .cal-weekdays div { padding: 6px 0; text-align: center; }
+  .cal-cell {
+    background: var(--bg-1);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 8px 8px;
+    min-height: 70px;
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .cal-cell:nth-child(7n) { border-right: none; }
+  .cal-cell.dim { color: var(--fg-4); background: #0c0c0c; }
+  .cal-cell .d { font-size: 12px; color: var(--fg-2); display: flex; align-items: center; justify-content: space-between; }
+  .cal-cell.today .d-num {
+    background: var(--blue); color: white; font-weight: 600;
+    height: 19px; width: 19px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .cal-cell .badge {
+    background: rgba(59, 130, 246, 0.18);
+    color: #93c5fd;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .cal-cell .badge .pip {
+    height: 5px; width: 5px; border-radius: 50%; background: #60a5fa;
+  }
+  .cal-cell .meta {
+    margin-top: auto;
+    font-size: 10px;
+    color: var(--fg-3);
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .cal-cell .meta .num { color: var(--fg); font-weight: 500; }
+  .cal-cell .bar {
+    height: 3px; background: var(--bg-3); border-radius: 2px;
+    margin-top: 5px; overflow: hidden;
+  }
+  .cal-cell .bar > div { height: 100%; border-radius: 2px; }
+  .bar-green { background: rgba(34, 197, 94, 0.7); }
+  .bar-yellow { background: rgba(234, 179, 8, 0.7); }
+  .bar-orange { background: rgba(249, 115, 22, 0.7); }
+  .bar-red { background: rgba(239, 68, 68, 0.7); }
+  .cal-cell.selected { background: rgba(30, 58, 138, 0.25); box-shadow: inset 0 0 0 1px var(--blue); }
+
+  .cal-day-panel {
+    margin-top: 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .day-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .day-head .title { font-size: 15px; font-weight: 600; }
+  .cta {
+    background: var(--blue); color: white; font-size: 12px; font-weight: 500;
+    padding: 6px 12px; border-radius: 6px; text-decoration: none;
+    border: none; font-family: inherit; cursor: pointer;
+  }
+  .pending-strip {
+    background: rgba(30, 58, 138, 0.18);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+  .pending-strip h6 {
+    margin: 0 0 6px; font-size: 12px; color: #93c5fd; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pending-strip h6 .dot { height: 6px; width: 6px; background: #60a5fa; border-radius: 50%; }
+  .pending-row {
+    background: var(--bg-2);
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 12px;
+    display: flex; justify-content: space-between;
+    margin-top: 4px;
+    color: var(--fg-2);
+  }
+  .pending-row strong { color: var(--fg); font-weight: 500; }
+  .day-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 16px; }
+  .day-cols h6 {
+    margin: 0 0 8px; font-size: 12px; font-weight: 500;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .day-cols .available h6 { color: var(--green); }
+  .day-cols .busy h6 { color: var(--orange); }
+  .day-cols .available h6 .dot { background: var(--green); height: 6px; width: 6px; border-radius: 50%; }
+  .day-cols .busy h6 .dot { background: var(--orange); height: 6px; width: 6px; border-radius: 50%; }
+  .person {
+    background: var(--bg-2);
+    border-radius: 6px;
+    padding: 7px 10px;
+    margin-top: 4px;
+    font-size: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .person strong { font-weight: 500; color: var(--fg); }
+  .person span { color: var(--fg-4); font-size: 11px; }
+  .person .sub { color: var(--fg-3); font-size: 11px; margin-top: 2px; display: block; }
+
+  /* ── Phone mockup ───────────────────────────────────── */
+  .phone-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .phone {
+    margin: 0 auto;
+    width: 280px;
+    background: #000;
+    border-radius: 36px;
+    padding: 12px 12px;
+    box-shadow: 0 20px 40px -15px rgba(0,0,0,0.8), 0 0 0 1px #1c1c1c;
+    border: 1px solid #2a2a2a;
+  }
+  .phone-screen {
+    background: #1c1c1e;
+    border-radius: 26px;
+    padding: 20px 14px 24px;
+    color: #fff;
+    position: relative;
+    min-height: 460px;
+  }
+  .phone-screen::before {
+    content: ""; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    width: 96px; height: 26px; background: #000; border-radius: 16px;
+  }
+  .sms-time {
+    text-align: center; font-size: 10px; color: #98989f;
+    margin: 28px 0 14px;
+  }
+  .sms-sender {
+    text-align: center; font-size: 12px; color: #fff; font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .sms-sender .num { color: #98989f; font-size: 10px; font-weight: 400; display: block; margin-top: 1px; }
+  .bubble {
+    background: #2c2c2e;
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.42;
+    color: #fff;
+    max-width: 100%;
+    white-space: pre-wrap;
+  }
+  .bubble a { color: #6ab7ff; text-decoration: none; }
+  .bubble-time { font-size: 9px; color: #98989f; margin-top: 4px; }
+
+  /* Offer landing page mock */
+  .gig-page {
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 24px;
+    font-size: 14px;
+  }
+  .gig-page .gp-kicker {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg-4);
+  }
+  .gig-page .gp-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 4px 0 2px;
+    color: var(--fg);
+  }
+  .gig-page .gp-time { color: var(--fg-2); font-size: 14px; }
+  .gig-page dl {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 18px 0;
+    padding: 12px 14px;
+  }
+  .gig-page dl > div {
+    display: flex; justify-content: space-between;
+    padding: 5px 0;
+    font-size: 13px;
+  }
+  .gig-page dt { color: var(--fg-4); }
+  .gig-page dd { margin: 0; color: var(--fg); font-weight: 500; }
+  .gig-page .gp-btn {
+    display: block; text-align: center;
+    padding: 12px 0; border-radius: 8px;
+    font-weight: 600; font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .gp-btn.accept { background: var(--green); color: #052e16; }
+  .gp-btn.decline { background: transparent; color: var(--fg-2); border: 1px solid var(--border-strong); }
+  .gp-foot { color: var(--fg-4); font-size: 11px; text-align: center; margin-top: 8px; }
+
+  /* ── Architecture diagram ───────────────────────────── */
+  .arch {
+    margin-top: 32px;
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .arch svg { width: 100%; height: auto; display: block; }
+
+  /* ── How it works ───────────────────────────────────── */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 28px;
+  }
+  .step {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .step .num {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--blue);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .step h4 { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: var(--fg); }
+  .step p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--fg-3); }
+
+  /* ── Privacy box ────────────────────────────────────── */
+  .privacy {
+    margin-top: 28px;
+    border: 1px solid var(--border-strong);
+    border-left: 3px solid var(--green);
+    border-radius: 10px;
+    padding: 22px 26px;
+    background: rgba(34, 197, 94, 0.04);
+  }
+  .privacy h4 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    color: var(--green);
+    font-weight: 600;
+  }
+  .privacy .pgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+  }
+  .privacy .pcol h5 {
+    margin: 0 0 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--fg-3);
+  }
+  .privacy .pcol ul { margin: 0; padding-left: 18px; }
+  .privacy .pcol li { font-size: 13px; color: var(--fg-2); line-height: 1.5; padding: 1px 0; }
+  .privacy .pcol.we-dont li::marker { color: var(--red); }
+  .privacy .pcol.we-do li::marker { color: var(--green); }
+
+  /* ── Status table ───────────────────────────────────── */
+  .status {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 28px;
+  }
+  .status .row {
+    display: grid;
+    grid-template-columns: 50px 1fr 110px;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .status .row:last-child { border-bottom: none; }
+  .status .row.head {
+    background: var(--bg-2);
+    font-size: 11px;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+  .status .check {
+    height: 18px; width: 18px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: bold;
+  }
+  .check.done { background: rgba(34,197,94,0.18); color: var(--green); }
+  .check.todo { background: var(--bg-3); color: var(--fg-3); }
+  .status .label { color: var(--fg); font-weight: 500; }
+  .status .label small { display: block; font-size: 12px; color: var(--fg-3); font-weight: 400; margin-top: 2px; }
+  .status .tag {
+    font-size: 11px;
+    background: var(--bg-3);
+    color: var(--fg-2);
+    padding: 3px 9px;
+    border-radius: 999px;
+    text-align: center;
+    justify-self: end;
+  }
+  .tag.green { background: rgba(34,197,94,0.18); color: var(--green); }
+  .tag.blue { background: rgba(59,130,246,0.18); color: #93c5fd; }
+  .tag.amber { background: rgba(234,179,8,0.18); color: #fde68a; }
+
+  /* ── Asks list ──────────────────────────────────────── */
+  .asks ol {
+    counter-reset: ask;
+    list-style: none; padding: 0;
+    margin-top: 28px;
+  }
+  .asks li {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px 18px 70px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .asks li::before {
+    counter-increment: ask;
+    content: counter(ask);
+    position: absolute;
+    left: 18px;
+    top: 14px;
+    height: 34px; width: 34px;
+    border-radius: 50%;
+    background: rgba(59,130,246,0.15);
+    color: #93c5fd;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .asks h4 { margin: 0 0 4px; font-size: 16px; font-weight: 600; color: var(--fg); }
+  .asks p { margin: 0; font-size: 14px; color: var(--fg-3); line-height: 1.5; }
+  .asks p code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    background: var(--bg-3);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--fg-2);
+  }
+
+  /* ── Closing ────────────────────────────────────────── */
+  .closer {
+    margin-top: 80px;
+    padding-top: 36px;
+    border-top: 1px solid var(--border);
+    color: var(--fg-3);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 720px) {
+    h1 { font-size: 38px; }
+    .cards, .steps { grid-template-columns: 1fr 1fr; }
+    .phone-row { grid-template-columns: 1fr; }
+    .day-cols { grid-template-columns: 1fr; }
+    .status .row { grid-template-columns: 36px 1fr; }
+    .status .tag { display: none; }
+  }
+
+  @media print {
+    body { background: white; color: black; }
+    .wrap { padding: 30px; }
+    section { page-break-inside: avoid; margin-top: 50px; }
+    .mockup, .card, .step, .privacy, .status, .asks li { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ───────────────────────────────── HERO -->
+  <header>
+    <div class="kicker">Booking Bot · Project Brief</div>
+    <h1>Stop chasing calendars.<br/>Start filling dates.</h1>
+    <p class="lede">
+      A private layer on top of Overture that pulls each artist's availability
+      from Google Calendar — without ever seeing their personal events — and lets
+      you fan out gig offers by SMS with a 24-hour clock.
+    </p>
+    <div class="meta">
+      <div><strong>Status</strong><br/>Code complete (Phases 1–3)</div>
+      <div><strong>Built for</strong><br/>Your agency, first</div>
+      <div><strong>Time to first artist onboarded</strong><br/>~2 hours after we provision Supabase</div>
+    </div>
+  </header>
+
+  <!-- ───────────────────────────────── PROBLEM -->
+  <section>
+    <h2>The Problem</h2>
+    <h3>You're a calendar app, not an agent.</h3>
+    <p class="p">
+      Right now your week is half-spent reconciling artist availability across Google, Apple,
+      and Overture — chasing artists to re-paste their calendar key, eyeballing five tabs to
+      find who's free June 14, then negotiating offers one phone call at a time.
+    </p>
+    <div class="cards">
+      <div class="card">
+        <div class="num">Pain 1</div>
+        <h4>Artists never keep Overture's calendar field current</h4>
+        <p>Every time their schedule changes, someone has to remind them to re-paste their calendar URL. It's a permanent low-grade headache.</p>
+      </div>
+      <div class="card">
+        <div class="num">Pain 2</div>
+        <h4>Finding "who's free Saturday" means opening every artist's calendar</h4>
+        <p>For one date. Across however many artists. Then doing it again for the next date.</p>
+      </div>
+      <div class="card">
+        <div class="num">Pain 3</div>
+        <h4>Offers go out one phone call at a time</h4>
+        <p>No way to send "first to accept wins" to three artists at once. So you walk down the list, hoping the first call says yes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────────────── SOLUTION -->
+  <section>
+    <h2>The Solution</h2>
+    <h3>One privacy-preserving sync.<br/>One dashboard. One batch SMS.</h3>
+    <p class="p">
+      Each artist clicks a link <strong>once</strong> and grants us their Google Calendar — but in a
+      mode where Google itself only tells us when they're busy, not what they're doing. We pipe
+      those opaque "Busy" blocks straight into Overture so the artist record there is always
+      current with zero effort from anyone.
+    </p>
+    <p class="p">
+      Then you get a master calendar: click a day, see who's free, pick three of them, fire off
+      SMS offers with accept/decline links and a 24-hour clock. First yes wins; the others get
+      released automatically.
+    </p>
+
+    <div class="arch">
+      <svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#5a5a5a"/>
+          </marker>
+        </defs>
+        <!-- Artists box -->
+        <rect x="20" y="55" width="170" height="100" rx="12" fill="#161616" stroke="#2a2a2a"/>
+        <text x="105" y="85" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="13" fill="#fafafa" font-weight="600">Artists</text>
+        <text x="105" y="105" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#8a8a8a">One-time Google</text>
+        <text x="105" y="120" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#8a8a8a">Calendar sign-in</text>
+        <text x="105" y="138" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#22c55e">+ accept SMS gigs</text>
+
+        <!-- Booking Bot center -->
+        <rect x="290" y="35" width="180" height="140" rx="14" fill="#1a2540" stroke="#3b82f6"/>
+        <text x="380" y="65" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="14" fill="#93c5fd" font-weight="700">Booking Bot</text>
+        <text x="380" y="86" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10" fill="#c4c4c4">Polls FreeBusy</text>
+        <text x="380" y="101" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10" fill="#c4c4c4">Serves private .ics</text>
+        <text x="380" y="116" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10" fill="#c4c4c4">Sends SMS offers</text>
+        <text x="380" y="131" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10" fill="#c4c4c4">Tracks expiries</text>
+        <text x="380" y="155" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10" fill="#5a5a5a" font-style="italic">Next.js · Supabase · Twilio</text>
+
+        <!-- Overture box -->
+        <rect x="570" y="22" width="170" height="80" rx="12" fill="#161616" stroke="#2a2a2a"/>
+        <text x="655" y="50" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="13" fill="#fafafa" font-weight="600">Overture</text>
+        <text x="655" y="70" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#8a8a8a">Imports busy .ics</text>
+        <text x="655" y="85" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#8a8a8a">Receives bookings</text>
+
+        <!-- Agent box -->
+        <rect x="570" y="118" width="170" height="80" rx="12" fill="#161616" stroke="#2a2a2a"/>
+        <text x="655" y="146" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="13" fill="#fafafa" font-weight="600">You</text>
+        <text x="655" y="166" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#8a8a8a">Master dashboard</text>
+        <text x="655" y="181" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="11" fill="#8a8a8a">Offer composer</text>
+
+        <!-- Arrows -->
+        <line x1="190" y1="92" x2="288" y2="92" stroke="#5a5a5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="240" y="84" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10" fill="#8a8a8a">FreeBusy only</text>
+
+        <line x1="290" y1="120" x2="190" y2="120" stroke="#5a5a5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="240" y="135" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10" fill="#8a8a8a">SMS offers</text>
+
+        <line x1="470" y1="70" x2="568" y2="62" stroke="#5a5a5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="519" y="55" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10" fill="#8a8a8a">.ics + bookings</text>
+
+        <line x1="470" y1="148" x2="568" y2="158" stroke="#5a5a5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="519" y="172" text-anchor="middle" font-family="-apple-system, sans-serif" font-size="10" fill="#8a8a8a">Master view</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ───────────────────────────────── DASHBOARD MOCK -->
+  <section>
+    <h2>What you'll see</h2>
+    <h3>The master availability dashboard.</h3>
+    <p class="p">
+      Click a day. The panel below shows who's free, who's busy (and when), and any offers
+      you've already fanned out. From there it's one click to compose a batch.
+    </p>
+
+    <div class="mockup">
+      <div class="mockup-chrome">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="url">app.booking-bot.com/calendar</div>
+      </div>
+      <div class="cal">
+        <div class="cal-head">
+          <div>
+            <h5>May 2026</h5>
+            <div class="sub">8 artists · click a day to see the breakdown · times shown in America/New_York</div>
+          </div>
+          <div class="cal-nav">
+            <button>← Prev</button>
+            <button>Today</button>
+            <button>Next →</button>
+          </div>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-weekdays">
+            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+          </div>
+          <div class="cal-days">
+            <!-- Week 1 - dim leading days -->
+            <div class="cal-cell dim"><div class="d"><span>26</span></div></div>
+            <div class="cal-cell dim"><div class="d"><span>27</span></div></div>
+            <div class="cal-cell dim"><div class="d"><span>28</span></div></div>
+            <div class="cal-cell dim"><div class="d"><span>29</span></div></div>
+            <div class="cal-cell dim"><div class="d"><span>30</span></div></div>
+            <div class="cal-cell"><div class="d"><span>1</span></div><div class="meta"><span><span class="num">6</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:75%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>2</span></div><div class="meta"><span><span class="num">5</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:62%"></div></div></div>
+            <!-- Week 2 -->
+            <div class="cal-cell"><div class="d"><span>3</span></div><div class="meta"><span><span class="num">7</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:87%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>4</span></div><div class="meta"><span><span class="num">8</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:100%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>5</span></div><div class="meta"><span><span class="num">7</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:87%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>6</span></div><div class="meta"><span><span class="num">6</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:75%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>7</span></div><div class="meta"><span><span class="num">5</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:62%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>8</span></div><div class="meta"><span><span class="num">4</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:50%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>9</span><span class="badge"><span class="pip"></span>2</span></div><div class="meta"><span><span class="num">3</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-orange" style="width:37%"></div></div></div>
+            <!-- Week 3 -->
+            <div class="cal-cell"><div class="d"><span>10</span></div><div class="meta"><span><span class="num">6</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:75%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>11</span></div><div class="meta"><span><span class="num">7</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:87%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>12</span></div><div class="meta"><span><span class="num">6</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:75%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>13</span></div><div class="meta"><span><span class="num">4</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:50%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>14</span><span class="badge"><span class="pip"></span>3</span></div><div class="meta"><span><span class="num">5</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:62%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>15</span></div><div class="meta"><span><span class="num">4</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:50%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>16</span></div><div class="meta"><span><span class="num">2</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-orange" style="width:25%"></div></div></div>
+            <!-- Week 4 with today -->
+            <div class="cal-cell"><div class="d"><span>17</span></div><div class="meta"><span><span class="num">5</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:62%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>18</span></div><div class="meta"><span><span class="num">6</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:75%"></div></div></div>
+            <div class="cal-cell today selected"><div class="d"><span class="d-num">19</span></div><div class="meta"><span><span class="num">5</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:62%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>20</span></div><div class="meta"><span><span class="num">4</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:50%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>21</span></div><div class="meta"><span><span class="num">7</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:87%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>22</span></div><div class="meta"><span><span class="num">6</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:75%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>23</span><span class="badge"><span class="pip"></span>1</span></div><div class="meta"><span><span class="num">3</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-orange" style="width:37%"></div></div></div>
+            <!-- Week 5 -->
+            <div class="cal-cell"><div class="d"><span>24</span></div><div class="meta"><span><span class="num">6</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:75%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>25</span></div><div class="meta"><span><span class="num">5</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:62%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>26</span></div><div class="meta"><span><span class="num">7</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:87%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>27</span></div><div class="meta"><span><span class="num">4</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-yellow" style="width:50%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>28</span></div><div class="meta"><span><span class="num">3</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-orange" style="width:37%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>29</span></div><div class="meta"><span><span class="num">2</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-orange" style="width:25%"></div></div></div>
+            <div class="cal-cell"><div class="d"><span>30</span></div><div class="meta"><span><span class="num">1</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-red" style="width:12%"></div></div></div>
+            <!-- Week 6 -->
+            <div class="cal-cell"><div class="d"><span>31</span></div><div class="meta"><span><span class="num">6</span><span style="color:var(--fg-4)">/8</span></span></div><div class="bar"><div class="bar-green" style="width:75%"></div></div></div>
+            <div class="cal-cell dim"><div class="d"><span>1</span></div></div>
+            <div class="cal-cell dim"><div class="d"><span>2</span></div></div>
+            <div class="cal-cell dim"><div class="d"><span>3</span></div></div>
+            <div class="cal-cell dim"><div class="d"><span>4</span></div></div>
+            <div class="cal-cell dim"><div class="d"><span>5</span></div></div>
+            <div class="cal-cell dim"><div class="d"><span>6</span></div></div>
+          </div>
+        </div>
+
+        <!-- Day detail panel -->
+        <div class="cal-day-panel">
+          <div class="day-head">
+            <div class="title">Tuesday, May 19, 2026</div>
+            <button class="cta">Make offer for this day →</button>
+          </div>
+          <div class="day-cols">
+            <div class="available">
+              <h6><span class="dot"></span>Available · 5</h6>
+              <div class="person"><strong>Mira Solano</strong><span>+1 (555) 010-4421</span></div>
+              <div class="person"><strong>James Okafor</strong><span>+1 (555) 010-7732</span></div>
+              <div class="person"><strong>Theo Kessler</strong><span>+1 (555) 010-9911</span></div>
+              <div class="person"><strong>Devi Ramachandran</strong><span>+1 (555) 010-2204</span></div>
+              <div class="person"><strong>August Vrå</strong><span>+1 (555) 010-3380</span></div>
+            </div>
+            <div class="busy">
+              <h6><span class="dot"></span>Busy · 3</h6>
+              <div class="person">
+                <div>
+                  <strong>Linda Park</strong>
+                  <span class="sub">6:00 PM – 10:00 PM (personal)</span>
+                </div>
+              </div>
+              <div class="person">
+                <div>
+                  <strong>Marcus Hayes</strong>
+                  <span class="sub">All day (agency booking)</span>
+                </div>
+              </div>
+              <div class="person">
+                <div>
+                  <strong>Yara El-Sayed</strong>
+                  <span class="sub">8:30 PM – 11:30 PM (personal)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────────────── SMS MOCK -->
+  <section>
+    <h2>The Offer Flow</h2>
+    <h3>One batch. Three artists. First yes wins.</h3>
+    <p class="p">
+      Each artist gets a short text. Tap Accept, the gig is theirs and the others get released.
+      No reply within 24 hours? It expires and you get notified.
+    </p>
+
+    <div class="phone-row">
+      <div>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="sms-time">Tuesday 9:42 AM</div>
+            <div class="sms-sender">Lecky &amp; Co.<span class="num">+1 (555) 010-0040</span></div>
+            <div class="bubble">Hi Mira — gig offer from Lecky &amp; Co.:
+Sat Jun 14, 9:00 PM, The Roxy, $800.
+Accept: <a href="#">gigs.lecky.co/o/k3p9</a>
+Decline: <a href="#">gigs.lecky.co/o/k3p9/d</a>
+Reply within 24h or it's released.</div>
+            <div class="bubble-time">9:42 AM</div>
+          </div>
+        </div>
+      </div>
+      <div class="gig-page">
+        <div class="gp-kicker">Gig offer from Lecky &amp; Co.</div>
+        <div class="gp-title">Saturday, June 14</div>
+        <div class="gp-time">9:00 PM – 12:00 AM</div>
+        <dl>
+          <div><dt>Venue</dt><dd>The Roxy</dd></div>
+          <div><dt>Fee</dt><dd>$800</dd></div>
+          <div><dt>Notes</dt><dd>Bring own backline</dd></div>
+          <div><dt>Expires</dt><dd>Wed Jun 15, 9:42 AM</dd></div>
+        </dl>
+        <a class="gp-btn accept" href="#">Accept this gig</a>
+        <a class="gp-btn decline" href="#">Decline</a>
+        <div class="gp-foot">First artist to accept wins. Other offers for this gig will be automatically released.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────────────── HOW IT WORKS -->
+  <section>
+    <h2>How it works</h2>
+    <h3>Four steps. One of them is "wait".</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h4>Artist clicks once</h4>
+        <p>They tap a link, sign into Google, grant FreeBusy-only access. ~30 seconds.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h4>You paste a URL into Overture</h4>
+        <p>One iCal feed URL per artist into Overture's "Internet Calendars" field. Once. Forever.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h4>Polls every 15 minutes</h4>
+        <p>Their busy blocks flow into Overture without anyone touching anything ever again.</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <h4>You compose offers</h4>
+        <p>Pick a date, pick artists, hit send. SMS fans out, accept/decline links, 24-hour clock.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────────────── PRIVACY -->
+  <section>
+    <h2>Privacy</h2>
+    <h3>The artist's calendar stays the artist's calendar.</h3>
+    <p class="p">
+      We use Google's <em>FreeBusy</em> API, not the events API. Google itself returns nothing
+      more than time ranges — no titles, no locations, no attendees, regardless of how much
+      access the artist has granted. This is the strongest privacy boundary Google offers,
+      and it's enforced on their server, not promised by ours.
+    </p>
+    <div class="privacy">
+      <h4>What we see vs. what we don't</h4>
+      <div class="pgrid">
+        <div class="pcol we-do">
+          <h5>What we see</h5>
+          <ul>
+            <li>"Busy from 3:00 PM to 5:00 PM on May 19"</li>
+            <li>That's it.</li>
+          </ul>
+        </div>
+        <div class="pcol we-dont">
+          <h5>What we don't see</h5>
+          <ul>
+            <li>Event titles ("Dentist", "Date night")</li>
+            <li>Locations, descriptions, attendees</li>
+            <li>Notes, attachments, recurrence rules</li>
+            <li>Anything but the time range</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <p class="p" style="margin-top:20px">
+      Offboarding is one click: revoke the artist's feed token, the .ics URL we publish 404s,
+      and Overture's import goes blank automatically.
+    </p>
+  </section>
+
+  <!-- ───────────────────────────────── STATUS -->
+  <section>
+    <h2>Status</h2>
+    <h3>Code's built. Provisioning is next.</h3>
+    <div class="status">
+      <div class="row head">
+        <div></div><div>Phase</div><div style="text-align:right">Status</div>
+      </div>
+      <div class="row">
+        <div><span class="check done">✓</span></div>
+        <div class="label">Phase 1 — Calendar sync (privacy layer)
+          <small>Google FreeBusy → private .ics → Overture. Cron polling every 15 min.</small>
+        </div>
+        <div class="tag green">Built</div>
+      </div>
+      <div class="row">
+        <div><span class="check done">✓</span></div>
+        <div class="label">Phase 2 — Master availability dashboard
+          <small>Month grid, day breakdown, pending-offer badges. (Overture sync-back pending API docs.)</small>
+        </div>
+        <div class="tag green">Built</div>
+      </div>
+      <div class="row">
+        <div><span class="check done">✓</span></div>
+        <div class="label">Phase 3 — SMS offer flow
+          <small>Composer, Twilio dispatch, public accept/decline, 24h expiry, first-yes-wins.</small>
+        </div>
+        <div class="tag green">Built</div>
+      </div>
+      <div class="row">
+        <div><span class="check todo">○</span></div>
+        <div class="label">Phase 0 — External provisioning
+          <small>Supabase + Google Cloud + Twilio + Overture API. Mostly your call.</small>
+        </div>
+        <div class="tag amber">Needs you</div>
+      </div>
+      <div class="row">
+        <div><span class="check todo">○</span></div>
+        <div class="label">Phase 4 — Polish &amp; cascade
+          <small>Auto-cascade to next artist, audit log, morning digest. Once we know what hurts.</small>
+        </div>
+        <div class="tag blue">Later</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────────────── ASKS -->
+  <section class="asks">
+    <h2>Things I need from you</h2>
+    <h3>Bring these on Wednesday and we move.</h3>
+    <ol>
+      <li>
+        <h4>Your Overture API key + the API docs PDF</h4>
+        <p>From Overture's Settings → API page. Unlocks the agency-bookings sync (so the dashboard knows about gigs <em>you've</em> already booked, not just artists' personal busy blocks).</p>
+      </li>
+      <li>
+        <h4>A live walkthrough of your Overture, screen-shared</h4>
+        <p>I want to see the artist record UI, the "Internet Calendars" field, and how confirmed bookings look. Five minutes, no prep needed on your side.</p>
+      </li>
+      <li>
+        <h4>The pilot roster — 2 to 5 artists</h4>
+        <p>Names + cell numbers (E.164: <code>+15551234567</code>). Pick your friendliest ones — they'll click an unfamiliar link the first day and we want patience for round one.</p>
+      </li>
+      <li>
+        <h4>Agency legal name + EIN + business email</h4>
+        <p>Required for Twilio's A2P 10DLC registration, which is a 1–4 week external clock that has to start now. SMS to real artists won't deliver until it clears.</p>
+      </li>
+      <li>
+        <h4>Your one priority for v1</h4>
+        <p>Is the master calendar the must-have, or is the SMS offer flow? Both are built, but knowing which matters more changes what we sweat in the first month.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ───────────────────────────────── CLOSER -->
+  <footer class="closer">
+    <p>
+      <strong style="color:var(--fg)">What this isn't yet:</strong> live. The code is sitting in a
+      branch waiting to be pointed at a real Supabase project. Once we have your API key and
+      Twilio is registered, the first artist can be onboarded same-day.
+    </p>
+    <p style="margin-top:14px">
+      <strong style="color:var(--fg)">What this could be:</strong> if it works for your agency, the
+      same code base can be re-skinned and resold to other agencies on Overture as a turnkey
+      add-on. The schema is already keyed per-agency; multi-tenant is a refactor, not a rewrite.
+    </p>
+    <p style="margin-top:30px; font-size:12px; color:var(--fg-4)">
+      Brief generated for the meeting. Print-friendly. Hand it back with notes scribbled on it.
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>
