@@ -9,16 +9,16 @@ faces: stale availability data, and the sequential offer bottleneck.
 - **Calendar onboarding** — agent generates a batch of personalised
   onboarding SMS, each containing a unique link. Artist clicks, picks
   Google or Apple, and is "connected" with busy/free sync only.
-- **Slot filling** — agent clicks *Fill this slot*. The engine pulls
-  the slot from Overture, intersects the roster with live calendar
-  availability, ranks the candidates by genre, fee, venue history,
-  and location, and sends a single offer to the top match.
-- **Auto follow-up** — declines and 24-hour no-responses are detected
-  by a background sweeper and automatically push the offer to the
-  next ranked artist. Slot status, offer history, and a live
-  countdown are visible to the agent at all times.
-- **Confirmation** — a YES tap confirms the booking, writes it back to
-  Overture, and stops the chain. The agent is notified.
+- **Slot offering** — agent clicks a slot. The engine pulls the slot
+  from Overture, intersects the roster with live calendar availability,
+  and shows the agent the list of artists who are free for that
+  window. The agent picks who to offer.
+- **Refusal & timeout handling** — a background sweeper detects 24-hour
+  no-responses and marks them refused. Refusals (whether the artist
+  taps REFUSE or the timer expires) drop the slot back to unfilled
+  and notify the agent so they can pick the next artist.
+- **Confirmation** — an ACCEPT tap confirms the booking, writes it
+  back to Overture, and notifies the agent.
 
 ## Architecture
 
@@ -47,9 +47,8 @@ npm start
 # → http://localhost:3000
 ```
 
-First boot seeds 12 artists, 5 venues, 5 open slots, calendar conflicts
-that force the bot to skip the obvious top picks for some slots,
-and a few past bookings that feed the ranking.
+First boot seeds 12 artists, 5 venues, 5 open slots, and calendar
+conflicts so the available-artists list shrinks for some slots.
 
 `npm run seed -- --reset` wipes and re-seeds. The dashboard also has
 a *Reset demo data* button.
@@ -65,38 +64,34 @@ a *Reset demo data* button.
    onboarding page appears with two big buttons: *Connect Google*
    and *Connect Apple*. Click either. The page confirms; back on the
    dashboard that artist now shows a green dot.
-4. **Fill a slot** — click any slot card with status `unfilled`. The
-   modal shows the ranked list of available artists with score
-   breakdown (genre / fee / history / location). Click *Fill this
-   slot*. A YES/NO SMS lands in the inbox.
-5. **Decline it** — click the NO link in the SMS. The artist sees a
-   simple confirmation page. The agent dashboard updates: that artist
-   is marked `declined`, and an offer is automatically sent to the
-   next ranked candidate.
-6. **Accept it** — click YES on the next offer. The slot turns green,
+4. **Offer a slot** — click any slot card with status `unfilled`. The
+   modal shows artists who are onboarded *and* free for that window.
+   Click *Send offer* next to whichever artist you want to book.
+5. **Refuse it** — click the REFUSE link in the SMS that appears in
+   the inbox. The slot drops back to `unfilled`, a notification fires,
+   and the modal opens again with that artist removed from the list.
+   Pick another and send.
+6. **Accept it** — click ACCEPT in the next SMS. The slot turns green,
    `confirmed`, and a notification announces the booking was pushed
    to Overture.
 7. **Let one expire** — drop the *Offer window* selector at the top
-   to "30 seconds (demo)". Trigger a fill on another slot and don't
-   click anything. After 30 seconds the offer auto-expires, the
-   declined artist is logged, and the next candidate is contacted
-   automatically. The background sweeper handles this without any
-   user action.
+   to "30 seconds (demo)". Send an offer and don't respond. After 30
+   seconds the background sweeper auto-refuses it and the slot drops
+   back to `unfilled` for the agent to pick again.
 
 ## Code map
 
 - `server.js` — Express routes (dashboard data, slot actions,
-  onboarding pages, offer YES/NO endpoints, settings, demo reset).
-- `engine.js` — slot-filling core: `startFillingSlot`,
-  `offerNextArtist`, `acceptOffer`, `declineOffer`,
+  onboarding pages, offer accept/refuse endpoints, settings, demo reset).
+- `engine.js` — core verbs: `availableArtistsForSlot`,
+  `sendOfferToArtist`, `acceptOffer`, `refuseOffer`,
   `sweepExpiredOffers`.
-- `ranking.js` — scoring (genre, fee fit, venue history, location).
 - `integrations.js` — Twilio / Overture / Calendar adapters (mocked).
-- `db.js` — SQLite schema, settings.
+- `db.js` — SQLite schema (uses Node's built-in `node:sqlite`), settings.
 - `seed.js` — demo data.
 - `public/index.html` + `dashboard.js` + `styles.css` — agent UI.
 - `public/styles.css` is also used by the server-rendered artist
-  pages (onboarding + offer YES/NO).
+  pages (onboarding + offer accept/refuse).
 
 ## What's deliberately out of scope (matches the spec)
 
@@ -105,7 +100,9 @@ a *Reset demo data* button.
 - No replacement of Overture — confirmed bookings are pushed back via
   the adapter and the slot keeps its `OVT-…` ID.
 - No contracts / payments / riders — Overture handles that already.
-- No multi-artist broadcasts — one offer at a time, top ranked,
+- No multi-artist broadcasts — one offer at a time, agent picks who,
   24-hour window (configurable for the demo).
+- No automatic ranking of artists — agent decides who to offer based
+  on the available list. The bot only filters by calendar availability.
 - The agent never sees event titles — calendar adapter only reads
   busy/free.

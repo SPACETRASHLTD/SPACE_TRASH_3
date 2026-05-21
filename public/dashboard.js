@@ -103,14 +103,12 @@ function renderSlots() {
       const cd = fmtCountdown(s.current_offer.expires_at);
       bottom = `
         <div class="slot-current">
-          <span>Offer with <strong>${escapeHtml(s.current_offer.artist_name)}</strong> · rank #${s.current_offer.rank}</span>
+          <span>Offer with <strong>${escapeHtml(s.current_offer.artist_name)}</strong></span>
           <span class="countdown ${cd.cls}" data-expires="${s.current_offer.expires_at}">${cd.text}</span>
         </div>
       `;
     } else if (s.status === 'confirmed') {
       bottom = `<div class="slot-current"><span>Confirmed with <strong>${escapeHtml(s.confirmed_artist_name)}</strong></span></div>`;
-    } else if (s.status === 'exhausted') {
-      bottom = `<div class="slot-current"><span>Ranked list exhausted — needs manual intervention.</span></div>`;
     }
     return `
       <div class="slot-card" data-slot-id="${s.id}">
@@ -202,14 +200,14 @@ async function renderSlotModal(slotId, reopen = false) {
   const slot = state.slots.find((s) => s.id === slotId);
   if (!slot) return closeSlotModal();
 
-  const preview = await api(`/api/slots/${slotId}/preview`);
-  const ranked = preview.ranked || [];
+  const data = await api(`/api/slots/${slotId}/available`);
+  const available = data.available || [];
 
   $('#modal-title').textContent = `${slot.venue_name} · ${fmtDate(slot.slot_date)}`;
 
   const offerLines = (slot.offers || []).map((o) => `
     <div class="offer-line">
-      <span>#${o.rank} <strong>${escapeHtml(o.artist_name)}</strong></span>
+      <span><strong>${escapeHtml(o.artist_name)}</strong></span>
       <span class="offer-status-${o.status}">
         ${escapeHtml(o.status)}${o.response_at ? ' · ' + fmtRelative(o.response_at) : ''}
         ${o.status === 'pending' ? ' · expires ' + fmtCountdown(o.expires_at).text : ''}
@@ -217,62 +215,61 @@ async function renderSlotModal(slotId, reopen = false) {
     </div>
   `).join('') || '<div class="muted">No offers sent yet.</div>';
 
-  const rankedRows = ranked.length === 0
-    ? '<tr><td colspan="3" class="muted">No available artists for this slot.</td></tr>'
-    : ranked.map((r, i) => `
-        <tr class="${i === 0 ? 'top' : ''}">
-          <td>${i + 1}</td>
+  const canOffer = slot.status === 'unfilled';
+
+  const availableRows = available.length === 0
+    ? '<tr><td colspan="3" class="muted">No artists available for this slot. They\'re either not onboarded or already busy.</td></tr>'
+    : available.map((a) => `
+        <tr>
           <td>
-            <div><strong>${escapeHtml(r.artist.name)}</strong></div>
-            <div class="muted">${escapeHtml(r.artist.genres)} · ${escapeHtml(r.artist.location)} · £${r.artist.fee_min}–£${r.artist.fee_max}</div>
-            <div class="breakdown">
-              <span>genre ${Math.round(r.breakdown.genre)}</span>
-              <span>fee ${Math.round(r.breakdown.fee)}</span>
-              <span>history ${Math.round(r.breakdown.history)}</span>
-              <span>location ${Math.round(r.breakdown.location)}</span>
-            </div>
+            <div><strong>${escapeHtml(a.name)}</strong></div>
+            <div class="muted">${escapeHtml(a.location)} · ${escapeHtml(a.calendar_provider || 'calendar')} synced</div>
           </td>
-          <td class="score">${r.score}</td>
+          <td class="muted">${escapeHtml(a.phone)}</td>
+          <td>
+            ${canOffer
+              ? `<button class="btn btn-primary btn-sm send-offer-btn" data-artist-id="${a.id}">Send offer</button>`
+              : '<span class="muted">—</span>'}
+          </td>
         </tr>
       `).join('');
 
-  const canFill = slot.status === 'unfilled' || slot.status === 'exhausted';
-  const actions = `
-    <div class="modal-actions">
-      ${canFill ? '<button id="modal-fill" class="btn btn-primary">Fill this slot — send offer to top artist</button>' : ''}
-      ${slot.status === 'confirmed' ? `<span class="muted">Confirmed with ${escapeHtml(slot.confirmed_artist_name)} · Overture booking ${escapeHtml(slot.overture_slot_id)}</span>` : ''}
-    </div>
-  `;
+  const statusLine = slot.status === 'confirmed'
+    ? `<div class="modal-actions"><span class="muted">Confirmed with ${escapeHtml(slot.confirmed_artist_name)} · Overture booking ${escapeHtml(slot.overture_slot_id)}</span></div>`
+    : slot.status === 'offer_pending'
+      ? `<div class="modal-actions"><span class="muted">Offer pending — wait for the artist to respond, or for the offer to expire, before sending another.</span></div>`
+      : '';
 
   $('#modal-body').innerHTML = `
     <p class="muted">
       ${escapeHtml(slot.venue_name)} · ${escapeHtml(slot.venue_location)} · £${slot.fee} ·
-      ${escapeHtml(slot.start_time)}–${escapeHtml(slot.end_time)} · looking for <strong>${escapeHtml(slot.genre_required)}</strong>.
+      ${escapeHtml(slot.start_time)}–${escapeHtml(slot.end_time)}.
     </p>
     <p class="muted">
-      Showing artists who are <strong>available</strong> based on live calendar sync, ranked by fit.
-      Top match auto-receives the offer first; if they decline or don't respond, the next candidate is contacted automatically.
+      Artists below are <strong>onboarded</strong> and <strong>free</strong> for this slot based on live calendar sync.
+      You pick who to offer. If they refuse or don't respond in time, pick another.
     </p>
     <table class="ranked-table">
-      <thead><tr><th>Rank</th><th>Artist</th><th>Score</th></tr></thead>
-      <tbody>${rankedRows}</tbody>
+      <thead><tr><th>Artist</th><th>Phone</th><th></th></tr></thead>
+      <tbody>${availableRows}</tbody>
     </table>
     <div class="offer-history">
       <h4>Offer history</h4>
       ${offerLines}
     </div>
-    ${actions}
+    ${statusLine}
   `;
 
-  const fillBtn = $('#modal-fill');
-  if (fillBtn) {
-    fillBtn.addEventListener('click', async () => {
-      fillBtn.disabled = true;
-      fillBtn.textContent = 'Sending…';
-      const result = await api(`/api/slots/${slotId}/fill`, { method: 'POST' });
-      if (result.error) {
-        alert(result.error);
-      }
+  for (const btn of $$('.send-offer-btn')) {
+    btn.addEventListener('click', async () => {
+      const artistId = parseInt(btn.dataset.artistId, 10);
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      const result = await api(`/api/slots/${slotId}/offer`, {
+        method: 'POST',
+        body: { artist_id: artistId },
+      });
+      if (result.error) alert(result.error);
       await refresh();
     });
   }

@@ -3,11 +3,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db, getSetting, setSetting } from './db.js';
 import { seedDemoData } from './seed.js';
-import { rankArtistsForSlot } from './ranking.js';
 import {
-  startFillingSlot,
+  availableArtistsForSlot,
+  sendOfferToArtist,
   acceptOffer,
-  declineOffer,
+  refuseOffer,
   sweepExpiredOffers,
 } from './engine.js';
 import { connectCalendar, sendSms } from './integrations.js';
@@ -78,18 +78,20 @@ app.get('/api/state', (_req, res) => {
 // ---------------------------------------------------------------------------
 // Slot actions
 // ---------------------------------------------------------------------------
-app.get('/api/slots/:id/preview', (req, res) => {
+app.get('/api/slots/:id/available', (req, res) => {
   try {
-    const { slot, ranked } = rankArtistsForSlot(parseInt(req.params.id, 10));
-    res.json({ slot, ranked: ranked.slice(0, 10) });
+    const { slot, available } = availableArtistsForSlot(parseInt(req.params.id, 10));
+    res.json({ slot, available });
   } catch (err) {
     res.status(404).json({ error: err.message });
   }
 });
 
-app.post('/api/slots/:id/fill', (req, res) => {
+app.post('/api/slots/:id/offer', (req, res) => {
   try {
-    const result = startFillingSlot(parseInt(req.params.id, 10));
+    const artistId = parseInt(req.body.artist_id, 10);
+    if (!artistId) return res.status(400).json({ error: 'artist_id is required' });
+    const result = sendOfferToArtist(parseInt(req.params.id, 10), artistId);
     res.json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -160,8 +162,8 @@ app.get('/r/:token/:action', (req, res) => {
 app.post('/api/offer/:token/respond', (req, res) => {
   const { action } = req.body;
   if (action === 'accept') return res.json(acceptOffer(req.params.token));
-  if (action === 'decline') return res.json(declineOffer(req.params.token));
-  res.status(400).json({ error: 'action must be accept or decline' });
+  if (action === 'refuse') return res.json(refuseOffer(req.params.token));
+  res.status(400).json({ error: 'action must be accept or refuse' });
 });
 
 // ---------------------------------------------------------------------------
@@ -279,18 +281,18 @@ function renderOfferPage(offer, action, token) {
       <p>Status: <strong>${escapeHtml(offer.status)}</strong></p>
     `);
   }
-  const verb = action === 'yes' ? 'accept' : 'decline';
+  const verb = action === 'accept' ? 'accept' : 'refuse';
   const dateStr = new Date(offer.slot_date + 'T00:00:00').toLocaleDateString('en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
-  return renderShell(verb === 'accept' ? 'Confirm acceptance' : 'Confirm decline', `
-    <h1>${verb === 'accept' ? 'Accept this offer?' : 'Decline this offer?'}</h1>
+  return renderShell(verb === 'accept' ? 'Confirm acceptance' : 'Confirm refusal', `
+    <h1>${verb === 'accept' ? 'Accept this offer?' : 'Refuse this offer?'}</h1>
     <div class="offer-summary">
       <p><strong>${escapeHtml(offer.venue_name)}</strong></p>
       <p>${escapeHtml(dateStr)} · ${escapeHtml(offer.start_time)}–${escapeHtml(offer.end_time)}</p>
       <p>Fee: £${offer.fee}</p>
     </div>
-    <button id="go" class="btn ${verb === 'accept' ? 'btn-yes' : 'btn-no'}">${verb === 'accept' ? 'Yes, accept' : 'Yes, decline'}</button>
+    <button id="go" class="btn ${verb === 'accept' ? 'btn-yes' : 'btn-no'}">${verb === 'accept' ? 'Yes, accept' : 'Yes, refuse'}</button>
     <div id="result"></div>
     <script>
       document.getElementById('go').addEventListener('click', async () => {
