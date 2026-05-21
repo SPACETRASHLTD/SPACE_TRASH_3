@@ -40,11 +40,11 @@ export function seedDemoData({ reset = false } = {}) {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const artistIds = artists.map((a) =>
-    insertArtist.run(
+    Number(insertArtist.run(
       a.name, a.phone, a.genres, a.location, a.fee_min, a.fee_max,
       nanoid(16), a.onboarded, a.provider,
       a.onboarded ? new Date(Date.now() - Math.random() * 30 * 86400_000).toISOString() : null
-    ).lastInsertRowid
+    ).lastInsertRowid)
   );
 
   const venues = [
@@ -55,7 +55,7 @@ export function seedDemoData({ reset = false } = {}) {
     { name: 'Rough Trade',       location: 'Bristol',    genres: 'indie,folk,electronic' },
   ];
   const insertVenue = db.prepare('INSERT INTO venues (name, location, genres) VALUES (?, ?, ?)');
-  const venueIds = venues.map((v) => insertVenue.run(v.name, v.location, v.genres).lastInsertRowid);
+  const venueIds = venues.map((v) => Number(insertVenue.run(v.name, v.location, v.genres).lastInsertRowid));
 
   // Slots — a mix of future dates within the next 3 weeks
   const now = new Date();
