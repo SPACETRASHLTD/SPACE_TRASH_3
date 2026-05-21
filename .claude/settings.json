@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && [ -d node_modules ] || npm install --no-audit --no-fund 2>&1 | tail -5",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

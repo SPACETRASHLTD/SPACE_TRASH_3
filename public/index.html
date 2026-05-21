@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Overture Slot Filler — Agent Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◉</span>
+      <span>Overture Slot Filler</span>
+    </div>
+    <div class="topbar-actions">
+      <label class="window-control">
+        Offer window:
+        <select id="offer-window">
+          <option value="30">30 seconds (demo)</option>
+          <option value="60" selected>60 seconds (demo)</option>
+          <option value="300">5 minutes</option>
+          <option value="3600">1 hour</option>
+          <option value="86400">24 hours (production)</option>
+        </select>
+      </label>
+      <button id="reset-demo" class="btn btn-ghost">Reset demo data</button>
+    </div>
+  </header>
+
+  <section class="stats-row">
+    <div class="stat"><div class="stat-num" id="stat-open">–</div><div class="stat-label">Open slots</div></div>
+    <div class="stat"><div class="stat-num" id="stat-pending">–</div><div class="stat-label">Offers pending</div></div>
+    <div class="stat"><div class="stat-num" id="stat-confirmed">–</div><div class="stat-label">Confirmed</div></div>
+    <div class="stat"><div class="stat-num" id="stat-onboarded">–</div><div class="stat-label">Onboarded artists</div></div>
+    <div class="stat warning" id="stat-not-onboarded-wrap"><div class="stat-num" id="stat-not-onboarded">–</div><div class="stat-label">Awaiting onboarding</div></div>
+  </section>
+
+  <div id="banner" class="banner hidden"></div>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Venue slots</h2>
+        <span class="muted">Click a slot to see ranking, history & controls</span>
+      </div>
+      <div id="slots-list"></div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Roster</h2>
+          <button id="send-onboarding" class="btn btn-primary btn-sm">Send onboarding batch</button>
+        </div>
+        <div id="artists-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Notifications</h2>
+          <button id="mark-read" class="btn btn-ghost btn-sm">Mark all read</button>
+        </div>
+        <div id="notifications-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Artist phones (demo SMS inbox)</h2>
+          <span class="muted">Tap a link to act as the artist</span>
+        </div>
+        <div id="sms-list"></div>
+      </section>
+    </aside>
+  </main>
+
+  <div id="slot-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title"></h3>
+        <button class="modal-close" aria-label="Close">×</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="/dashboard.js"></script>
+</body>
+</html>

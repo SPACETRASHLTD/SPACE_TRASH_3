@@ -1,0 +1,17 @@
+{
+  "name": "overture-slot-filler",
+  "version": "0.1.0",
+  "description": "Slot-filling bot for booking agencies on Overture",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "express": "^4.21.2",
+    "nanoid": "^5.0.9"
+  }
+}
