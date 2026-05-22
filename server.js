@@ -63,7 +63,10 @@ app.get('/api/state', (_req, res) => {
   `).all();
 
   const stats = {
-    open_slots: slots.filter((s) => s.status === 'unfilled' || s.status === 'exhausted').length,
+    // Slot statuses now cycle: unfilled → offer_pending → (back to unfilled on
+    // refusal/expiry) → confirmed. "exhausted" was a status set by the old
+    // auto-cascade when the ranked list ran out, and is no longer reachable.
+    open_slots: slots.filter((s) => s.status === 'unfilled').length,
     pending: slots.filter((s) => s.status === 'offer_pending').length,
     confirmed: slots.filter((s) => s.status === 'confirmed').length,
     onboarded: artists.filter((a) => a.onboarded).length,

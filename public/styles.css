@@ -244,7 +244,6 @@ button { font: inherit; cursor: pointer; }
 .status-unfilled    { background: rgba(245, 166, 35, 0.15); color: var(--amber); }
 .status-offer_pending { background: rgba(108, 140, 255, 0.18); color: var(--accent); }
 .status-confirmed   { background: rgba(46, 204, 113, 0.15); color: var(--green); }
-.status-exhausted   { background: rgba(239, 83, 80, 0.18); color: var(--red); }
 
 .slot-current {
   margin-top: 8px;
@@ -392,38 +391,20 @@ button { font: inherit; cursor: pointer; }
 
 #modal-body { padding: 18px 20px; }
 
-.ranked-table {
+.available-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 8px;
 }
 
-.ranked-table th, .ranked-table td {
+.available-table th, .available-table td {
   text-align: left;
   padding: 8px 10px;
   font-size: 12px;
   border-bottom: 1px solid var(--border);
 }
 
-.ranked-table th { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
-
-.ranked-table tr.top { background: rgba(108, 140, 255, 0.07); }
-
-.ranked-table .score { font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-
-.breakdown {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.breakdown span {
-  background: var(--panel-2);
-  color: var(--muted);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 11px;
-}
+.available-table th { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
 
 .offer-history {
   margin-top: 18px;

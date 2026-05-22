@@ -94,6 +94,8 @@ export function sendOfferToArtist(slotId, artistId) {
   ).get(slotId, artistId);
   if (already) return { error: `${artist.name} has already been offered this slot.` };
 
+  // offers.rank stores the order in which offers were sent for this slot
+  // (1st, 2nd, 3rd…) — purely an audit-trail counter, not a fit score.
   const priorCount = db.prepare('SELECT COUNT(*) as n FROM offers WHERE slot_id = ?').get(slotId).n;
   const token = nanoid(20);
   const expires = new Date(Date.now() + offerWindowMs()).toISOString();

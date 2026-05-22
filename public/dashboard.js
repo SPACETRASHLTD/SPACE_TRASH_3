@@ -249,7 +249,7 @@ async function renderSlotModal(slotId, reopen = false) {
       Artists below are <strong>onboarded</strong> and <strong>free</strong> for this slot based on live calendar sync.
       You pick who to offer. If they refuse or don't respond in time, pick another.
     </p>
-    <table class="ranked-table">
+    <table class="available-table">
       <thead><tr><th>Artist</th><th>Phone</th><th></th></tr></thead>
       <tbody>${availableRows}</tbody>
     </table>

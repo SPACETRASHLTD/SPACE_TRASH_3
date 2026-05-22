@@ -103,7 +103,7 @@ export function seedDemoData({ reset = false } = {}) {
     insertBusy.run(artistIds[b.artist], `${date}T${b.start}:00`, `${date}T${b.end}:00`);
   });
 
-  // Venue history — a few past bookings to feed the ranking
+  // Venue history — a few past bookings, displayed as informational only.
   const insertHistory = db.prepare(`
     INSERT INTO venue_history (artist_id, venue_id, played_at, rating) VALUES (?, ?, ?, ?)
   `);

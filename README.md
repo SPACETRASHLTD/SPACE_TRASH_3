@@ -27,9 +27,8 @@ faces: stale availability data, and the sequential offer bottleneck.
 │ Agent dashboard  │◄───►│ Express API + engine   │◄───►│ SQLite (data.db)   │
 │ (public/*)       │     │ (server.js, engine.js) │     └────────────────────┘
 └──────────────────┘     │                        │
-                         │  Adapters:             │
-                         │   • integrations.js    │◄──► Twilio (mocked → SMS inbox in UI)
-                         │   • ranking.js         │◄──► Overture REST (mocked)
+                         │  Adapters:             │◄──► Twilio (mocked → SMS inbox in UI)
+                         │   • integrations.js    │◄──► Overture REST (mocked)
                          │                        │◄──► Google/Apple Calendar (mocked OAuth)
                          └────────────────────────┘
 ```
