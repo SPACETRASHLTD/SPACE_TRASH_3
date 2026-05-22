@@ -1,0 +1,35 @@
+# Render Blueprint for the Overture Slot Filler demo.
+#
+# What this declares:
+#   - A single Node web service running `npm start` on Node 22
+#   - A 1 GB persistent disk mounted at /data so the SQLite database
+#     (data.db) survives restarts and deploys
+#   - DB_PATH wired to that disk so db.js opens the file there
+#   - PUBLIC_BASE_URL left for the user to fill in (sync: false) — the
+#     app falls back to RENDER_EXTERNAL_URL automatically so it works
+#     on first deploy even if you forget.
+#
+# Plan: "starter" because persistent disks are not available on the free
+# tier. Disk billing is separate (~$0.25 / GB / month).
+
+services:
+  - type: web
+    name: overture-slot-filler
+    runtime: node
+    plan: starter
+    branch: claude/slot-filling-booking-bot-QLk1M
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DB_PATH
+        value: /data/data.db
+      - key: PUBLIC_BASE_URL
+        sync: false
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1

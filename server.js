@@ -14,6 +14,9 @@ import { connectCalendar, sendSms } from './integrations.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+// Behind Render / Cloudflare / any reverse proxy, trust the X-Forwarded-* headers
+// so req.protocol returns https (not http) when generating links.
+app.set('trust proxy', true);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -108,7 +111,9 @@ app.post('/api/artists/send-onboarding-batch', (req, res) => {
   const targets = db.prepare(
     'SELECT * FROM artists WHERE onboarded = 0'
   ).all();
-  const base = req.protocol + '://' + req.get('host');
+  const base = process.env.PUBLIC_BASE_URL
+    || process.env.RENDER_EXTERNAL_URL
+    || (req.protocol + '://' + req.get('host'));
   const sent = [];
   for (const artist of targets) {
     const link = `${base}/onboard/${artist.onboarding_token}`;

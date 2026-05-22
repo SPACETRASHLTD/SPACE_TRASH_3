@@ -64,7 +64,11 @@ export function availableArtistsForSlot(slotId) {
 }
 
 function sendOfferSms({ artist, slot, token }) {
-  const base = process.env.PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+  // PUBLIC_BASE_URL is the explicit override. RENDER_EXTERNAL_URL is auto-set
+  // by Render so the first deploy works before you manually set anything.
+  const base = process.env.PUBLIC_BASE_URL
+    || process.env.RENDER_EXTERNAL_URL
+    || `http://localhost:${process.env.PORT || 3000}`;
   const accept = `${base}/r/${token}/accept`;
   const refuse = `${base}/r/${token}/refuse`;
   const body = (
