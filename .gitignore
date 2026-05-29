@@ -1,7 +1,12 @@
 # Kubera Circuit runtime artifacts (audit ledger, memory, skills, archive)
 .kubera/
 .ht/
+.kubera-live/
 .kubera-test-*/
+
+# never commit secrets
+.env
+*.key
 
 # Python
 __pycache__/

@@ -46,6 +46,52 @@ class LLMRouter:
         return self._client(model_id, prompt, **kwargs)
 
 
+_DEFAULT_SYSTEM = "You are a worker agent in a sandbox. Follow the constraints exactly."
+
+
+def http_anthropic_client(
+    api_key: str | None = None,
+    max_tokens: int = 256,
+    system: str | None = None,
+    timeout: float = 30.0,
+) -> Client:
+    """Dependency-free Anthropic client using only the stdlib (``urllib``).
+
+    Mirrors the raw Messages API call (the same one ``curl`` makes), so no SDK
+    install is required. The key is read from the ``api_key`` argument or the
+    ``ANTHROPIC_API_KEY`` environment variable — never hardcoded.
+    """
+
+    def _client(model_id: str, prompt: str, **kwargs: Any) -> str:
+        import json
+        import os
+        import urllib.request
+
+        key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+        if not key:
+            raise RuntimeError("ANTHROPIC_API_KEY not set (live run requires a key)")
+        body = json.dumps({
+            "model": model_id,
+            "max_tokens": kwargs.get("max_tokens", max_tokens),
+            "system": system or _DEFAULT_SYSTEM,
+            "messages": [{"role": "user", "content": prompt}],
+        }).encode()
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=body,
+            headers={
+                "x-api-key": key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read())
+        return "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
+
+    return _client
+
+
 def anthropic_client(api_key: str | None = None, max_tokens: int = 256, system: str | None = None) -> Client:
     """Example provider wiring. Lazily imports the ``anthropic`` SDK.
 

@@ -174,6 +174,24 @@ endpoint. Build and prove the path offline first (the adversarial suite); the li
 swap is one line. The next graduation after that — MCP tools and a real world — is
 exactly what the human gate and the sandbox-graduation rule (§7.1, §7.4) exist for.
 
+### Live smoke run
+
+`scripts/smoke_live.py` runs a **real model as the actor** in the deterministic
+sandbox, under a tiny cap. The key is read from the environment — never hardcoded,
+never committed. `http_anthropic_client` uses only the stdlib (no SDK install).
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-... python scripts/smoke_live.py --japa 1 --low 3
+```
+
+A representative run: a real `claude-sonnet-4-6` actor reasoned to
+`thrust=0.72, aggression=0.65` on the first japa — near the hidden optimum
+(`0.70, 0.60`) — scored ~97, stayed within budget, obeyed the debris-only fence,
+and was banked. The guardians ran on genuinely unpredictable output; a capable
+model behaves as a good actor, while the offline adversarial suite proves they
+*catch* a bad one. (The spend meter is notional here — per-call fake prices that
+bound the number of calls; real token cost for the smoke is a fraction of a cent.)
+
 ---
 
 ## Swapping in real backends
