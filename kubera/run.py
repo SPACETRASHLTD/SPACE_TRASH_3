@@ -20,8 +20,31 @@ from .config import CircuitConfig
 from .graph import build_graph, initial_state
 
 
-def run(config: CircuitConfig, *, auto_approve: bool = True, verbose: bool = True) -> dict:
-    app, circuit = build_graph(config=config)
+def _make_circuit(config: CircuitConfig, policy: str, adversarial: bool):
+    """Build a Circuit for the requested action-proposal policy.
+
+    - "search": deterministic in-code search (model non-load-bearing) — default.
+    - "model":  the model produces the actions (load-bearing). Offline default is
+      a well-behaved JSON model; ``adversarial`` swaps in the misbehaving one to
+      watch the guardians hold.
+    """
+    if policy == "search":
+        return None  # build_graph constructs the default Circuit/SearchPolicy
+    from .circuit import Circuit
+    from .models import AdversarialModel, JSONActionModel, ModelRouterImpl
+    from .policy import ModelPolicy
+    from .spend import SpendTracker
+
+    spend = SpendTracker(config.spend_cap_usd)
+    model = AdversarialModel() if adversarial else JSONActionModel("offline-json")
+    router = ModelRouterImpl(config, spend, model_factory=lambda mid: model)
+    return Circuit(config=config, router=router, spend=spend, policy=ModelPolicy())
+
+
+def run(config: CircuitConfig, *, auto_approve: bool = True, verbose: bool = True,
+        policy: str = "search", adversarial: bool = False) -> dict:
+    circuit = _make_circuit(config, policy, adversarial)
+    app, circuit = build_graph(circuit=circuit, config=config)
     state = initial_state(config)
     state["audit_log_ref"] = circuit.audit.path
 
@@ -84,6 +107,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--seed", type=int, default=1234)
     p.add_argument("--workdir", type=str, default=".kubera")
     p.add_argument("--human-gate", action="store_true", help="enable human approval interrupt each mala")
+    p.add_argument("--policy", choices=["search", "model"], default="search",
+                   help="action source: deterministic search (default) or load-bearing model")
+    p.add_argument("--adversarial", action="store_true",
+                   help="with --policy model, use a misbehaving model to stress the guardians")
     args = p.parse_args(argv)
 
     config = CircuitConfig(
@@ -96,7 +123,7 @@ def main(argv: list[str] | None = None) -> int:
         workdir=args.workdir,
         human_gate=args.human_gate,
     )
-    run(config, auto_approve=True, verbose=True)
+    run(config, auto_approve=True, verbose=True, policy=args.policy, adversarial=args.adversarial)
     return 0
 
 

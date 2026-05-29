@@ -44,6 +44,7 @@ class Circuit:
         world: WorldAdapter | None = None,
         router: ModelRouter | None = None,
         spend: SpendTracker | None = None,
+        policy=None,
     ):
         self.config = config or CircuitConfig()
         wd = self.config.workdir
@@ -67,6 +68,12 @@ class Circuit:
         self.rng = random.Random(self.config.seed)
         self._explore_cursor = 0
         self._cell_centers = _cell_centers(self.config.behavior_grid)
+
+        # The action-proposal policy. Default = deterministic in-code search, so
+        # the model stays non-load-bearing unless a ModelPolicy is injected.
+        from .policy import SearchPolicy
+
+        self.policy = policy or SearchPolicy()
 
         # GUARDRAIL (§7.1): refuse to run a non-sandbox world as the default.
         if not getattr(self.world, "sandbox", False):
@@ -214,37 +221,37 @@ class Circuit:
         size = self.config.low_tier_size
         n_explore = max(1, size // 2)
         trajectories = []
+        malformed = 0
         mem_low = list(state.get("mem_low") or [])
         for i in range(size):
             job = jobs[i % len(jobs)]
-            explore = (i < n_explore) or job["mode"] == "explore" or not job.get("center")
-            if explore:
-                # Deterministic grid sweep guarantees behavioral coverage over time.
-                center = self._cell_centers[self._explore_cursor % len(self._cell_centers)]
-                self._explore_cursor += 1
-                thrust = min(1.0, max(0.0, center[0] + self.rng.uniform(-0.05, 0.05)))
-                aggr = min(1.0, max(0.0, center[1] + self.rng.uniform(-0.05, 0.05)))
-                strat = job["strategy_id"] + ":explore"
-            else:
-                c = job["center"]
-                s = job["sigma"]
-                thrust = min(1.0, max(0.0, c[0] + self.rng.gauss(0, s)))
-                aggr = min(1.0, max(0.0, c[1] + self.rng.gauss(0, s)))
-                strat = job["strategy_id"] + ":exploit"
+            # The policy decides the action. With SearchPolicy this is deterministic
+            # code; with ModelPolicy it is a (possibly unpredictable) model call,
+            # already parsed fail-safe. A None proposal is malformed -> dropped.
+            p = self.policy.propose_params(self, job, state, i, n_explore)
+            if p is None:
+                malformed += 1
+                self.audit.append("malformed_skip", {"job": job.get("job_id")})
+                continue
 
             action = {
-                "params": {"thrust": round(thrust, 4), "aggression": round(aggr, 4)},
-                "target_category": job["target_category"],
+                "params": {"thrust": round(p["thrust"], 4), "aggression": round(p["aggression"], 4)},
+                "target_category": p.get("target_category", "debris"),
             }
             # §7.3 PRE-EXECUTION constitution check before acting in the world.
             if action["target_category"] in warden_rules.FORBIDDEN_CATEGORIES:
                 self.audit.append("preexec_block", {"action": action})
                 continue
             raw = self.world.execute(action)
-            traj = new_trajectory(strategy_id=strat, action=action, raw_outcome=raw)
+            # The worker's self-report may diverge from what the world returned
+            # (a real/adversarial actor can LIE here). truth_check will override it.
+            if "claimed_mass" in p:
+                raw = dict(raw)
+                raw["claimed_mass"] = p["claimed_mass"]
+            traj = new_trajectory(strategy_id=p["strategy_id"], action=action, raw_outcome=raw)
             traj["notes"].append(f"reported claimed_mass={raw.get('claimed_mass')}")
             trajectories.append(traj)
-        mem_low.append({"japa": state.get("japa"), "n": len(trajectories)})
+        mem_low.append({"japa": state.get("japa"), "n": len(trajectories), "malformed": malformed})
         return {"trajectories": trajectories, "mem_low": mem_low[-50:]}
 
     # ---- truth_check (Yama-truth): ground truth, deterministic --------------
