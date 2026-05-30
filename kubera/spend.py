@@ -30,8 +30,19 @@ class SpendTracker:
     def charge(self, amount: float, kind: str = "model") -> float:
         """Charge ``amount``; raise if it would breach the cap. The breaching
         charge itself is *not* applied — we stop before crossing the line."""
+        self.check(amount, kind)
+        return self.commit(amount, kind)
+
+    def check(self, amount: float, kind: str = "model") -> None:
+        """Guard only: raise ``SpendCapExceeded`` if committing ``amount`` would
+        cross the cap. Does not mutate state. Used to RESERVE a conservative
+        upper-bound cost before a call whose exact cost is not yet known."""
         if self.spend_usd + amount > self.cap_usd:
             raise SpendCapExceeded(self.spend_usd + amount, self.cap_usd, kind)
+
+    def commit(self, amount: float, kind: str = "model") -> float:
+        """Apply a charge unconditionally and count the call. Callers pair this
+        with a prior ``check`` (reserve) so the cap is never crossed."""
         self.spend_usd += amount
         self.calls += 1
         return self.spend_usd

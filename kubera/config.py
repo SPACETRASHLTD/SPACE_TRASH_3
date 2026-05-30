@@ -65,6 +65,20 @@ class CircuitConfig:
     )
     tool_price_usd: float = 0.0005
 
+    # Real per-token pricing (USD per 1M tokens), keyed by concrete model id.
+    # Used by LLMRouter to bill ACTUAL token cost against the cap; the notional
+    # ``model_price_usd`` above is only used by the offline mock router.
+    model_token_prices: dict = field(
+        default_factory=lambda: {
+            "claude-opus-4-8": {"input": 15.0, "output": 75.0},
+            "claude-sonnet-4-6": {"input": 3.0, "output": 15.0},
+            "claude-haiku-4-5-20251001": {"input": 1.0, "output": 5.0},
+            "claude-haiku-4-5": {"input": 1.0, "output": 5.0},
+        }
+    )
+    default_token_price: dict = field(default_factory=lambda: {"input": 3.0, "output": 15.0})
+    default_max_tokens: int = 256
+
     # --- cadence (§6) ---
     japa_per_mala: int = 9
     mala_per_maha: int = 108

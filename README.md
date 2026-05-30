@@ -187,10 +187,21 @@ ANTHROPIC_API_KEY=sk-ant-... python scripts/smoke_live.py --japa 1 --low 3
 A representative run: a real `claude-sonnet-4-6` actor reasoned to
 `thrust=0.72, aggression=0.65` on the first japa — near the hidden optimum
 (`0.70, 0.60`) — scored ~97, stayed within budget, obeyed the debris-only fence,
-and was banked. The guardians ran on genuinely unpredictable output; a capable
-model behaves as a good actor, while the offline adversarial suite proves they
-*catch* a bad one. (The spend meter is notional here — per-call fake prices that
-bound the number of calls; real token cost for the smoke is a fraction of a cent.)
+and was banked, at a **real cost of ~$0.009 across 8 calls**. The guardians ran on
+genuinely unpredictable output; a capable model behaves as a good actor, while the
+offline adversarial suite proves they *catch* a bad one.
+
+#### Real spend accounting (§7.2 in real dollars)
+
+`LLMRouter` bills **actual token cost**, not a flat per-call price. The cap is
+honored with **reserve-then-settle**: before each call it reserves a conservative
+upper bound (estimated input tokens + full `max_tokens` output, at the model's
+per-1M-token price) and refuses if that would breach the cap; after the call it
+settles the real input/output token cost reported by the provider. Because the
+reservation is an upper bound, the cap is never crossed — a tight cap halts the
+loop cleanly *before* the breaching call rather than after it. Per-model prices
+live in `CircuitConfig.model_token_prices`. (The offline mock router keeps simple
+notional per-call prices; only the real `LLMRouter` is token-billed.)
 
 ---
 

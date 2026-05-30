@@ -12,8 +12,9 @@ Requirements (neither is hardcoded):
 Run:
     ANTHROPIC_API_KEY=... python scripts/smoke_live.py --japa 1 --low 2
 
-Note: the spend meter is NOTIONAL (per-call fake prices), used here only to bound
-the number of calls. Real token cost for this smoke is a fraction of a cent.
+The spend cap is REAL: LLMRouter reserves a worst-case token cost before each
+call (refusing if it would breach the cap) and settles the actual input/output
+token cost after. Real cost for this smoke is a fraction of a cent.
 """
 
 from __future__ import annotations
@@ -38,7 +39,7 @@ def main(argv=None) -> int:
     p.add_argument("--high", type=int, default=1)
     p.add_argument("--mid", type=int, default=1)
     p.add_argument("--low", type=int, default=2)
-    p.add_argument("--cap", type=float, default=0.10, help="notional spend cap (bounds # of calls)")
+    p.add_argument("--cap", type=float, default=0.10, help="HARD spend cap in real USD (token-billed)")
     p.add_argument("--actor-model", default="claude-sonnet-4-6", help="model the actor (low tier) uses")
     p.add_argument("--aux-model", default="claude-haiku-4-5-20251001", help="model for the decorative tiers")
     p.add_argument("--workdir", default=".kubera-live")
@@ -80,7 +81,7 @@ def main(argv=None) -> int:
     print("=" * 60)
     print(f"  actor model     : {args.actor_model}")
     print(f"  japa completed  : {final.get('japa')}   halted={final.get('halt')} {final.get('halt_reason','')}")
-    print(f"  notional spend  : {final.get('spend_usd'):.4f} / cap {args.cap}")
+    print(f"  REAL spend (USD): {final.get('spend_usd'):.6f} / cap {args.cap}  ({spend.calls} calls)")
     print(f"  warden rejects  : {m.get('warden_rejections')}")
     print(f"  malformed skips : {circuit.audit.count('malformed_skip')}")
     print(f"  preexec blocks  : {circuit.audit.count('preexec_block')}")

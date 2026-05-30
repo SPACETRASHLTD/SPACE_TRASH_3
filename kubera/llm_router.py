@@ -26,7 +26,24 @@ from .config import CircuitConfig
 from .interfaces import Tier
 from .spend import SpendTracker
 
-Client = Callable[..., str]  # (model_id: str, prompt: str, **kwargs) -> str
+# A client returns either plain text, or (text, {"input": int, "output": int}).
+# The usage form lets the router bill ACTUAL token cost; the plain form falls
+# back to the (conservative) reservation estimate.
+Client = Callable[..., Any]
+
+# Conservative byte/char -> token ratio for the pre-call upper-bound estimate.
+# ~3 chars/token over-estimates real tokenization for ASCII prompts, so the
+# reserved cost is an upper bound on the actual cost (the cap is never crossed).
+_CHARS_PER_TOKEN = 3
+_SYSTEM_OVERHEAD_TOKENS = 24
+
+
+def estimate_input_tokens(prompt: str, system: str = "") -> int:
+    return max(1, (len(prompt) + len(system or "")) // _CHARS_PER_TOKEN + _SYSTEM_OVERHEAD_TOKENS)
+
+
+def cost_usd(input_tokens: int, output_tokens: int, prices: dict) -> float:
+    return input_tokens / 1_000_000 * prices["input"] + output_tokens / 1_000_000 * prices["output"]
 
 
 class LLMRouter:
@@ -38,12 +55,30 @@ class LLMRouter:
     def model_for(self, tier: Tier) -> str:
         return self.config.model_ids[tier]
 
+    def _prices(self, model_id: str) -> dict:
+        return self.config.model_token_prices.get(model_id, self.config.default_token_price)
+
     def complete(self, tier: Tier, prompt: str, **kwargs: Any) -> str:
-        # §7.2: charge BEFORE the call; the breach stops us crossing the cap.
-        price = self.config.model_price_usd.get(tier, 0.001)
-        self.spend.charge(price, kind=f"model:{tier}")
         model_id = self.model_for(tier)
-        return self._client(model_id, prompt, **kwargs)
+        prices = self._prices(model_id)
+        max_out = int(kwargs.get("max_tokens", self.config.default_max_tokens))
+
+        # §7.2 RESERVE: bound the worst-case cost (upper-bound input estimate +
+        # full max_tokens output) and refuse BEFORE the call if it would breach.
+        reserved = cost_usd(estimate_input_tokens(prompt), max_out, prices)
+        self.spend.check(reserved, kind=f"model:{tier}")
+
+        result = self._client(model_id, prompt, **kwargs)
+
+        # SETTLE: bill the actual token cost when the client reports usage;
+        # otherwise bill the (conservative) reservation so we never under-charge.
+        if isinstance(result, tuple) and len(result) == 2:
+            text, usage = result
+            actual = cost_usd(int(usage.get("input", 0)), int(usage.get("output", 0)), prices)
+        else:
+            text, actual = result, reserved
+        self.spend.commit(actual, kind=f"model:{tier}")
+        return text
 
 
 _DEFAULT_SYSTEM = "You are a worker agent in a sandbox. Follow the constraints exactly."
@@ -87,7 +122,9 @@ def http_anthropic_client(
         )
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read())
-        return "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
+        text = "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
+        usage = data.get("usage", {}) or {}
+        return text, {"input": usage.get("input_tokens", 0), "output": usage.get("output_tokens", 0)}
 
     return _client
 
@@ -117,7 +154,11 @@ def anthropic_client(api_key: str | None = None, max_tokens: int = 256, system: 
             system=system or "You are a worker agent. Follow the constraints exactly.",
             messages=[{"role": "user", "content": prompt}],
         )
-        # Concatenate text blocks from the response.
-        return "".join(getattr(b, "text", "") for b in msg.content)
+        text = "".join(getattr(b, "text", "") for b in msg.content)
+        usage = getattr(msg, "usage", None)
+        return text, {
+            "input": getattr(usage, "input_tokens", 0) if usage else 0,
+            "output": getattr(usage, "output_tokens", 0) if usage else 0,
+        }
 
     return _client
