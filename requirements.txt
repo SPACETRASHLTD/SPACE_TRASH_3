@@ -1,0 +1,7 @@
+# The Kubera Circuit — runtime dependencies.
+# Model-agnostic by design: no provider SDK is required to run the sandbox.
+langgraph>=1.2,<2
+langgraph-checkpoint>=4,<5
+
+# Dev / test only:
+#   pytest>=9
