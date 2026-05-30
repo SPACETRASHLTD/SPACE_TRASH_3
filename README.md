@@ -9,7 +9,7 @@ product; the page exists to build trust and get the visitor into the bot.
 - **Bot:** Anthropic Claude via a server-side API route (key never reaches the browser)
 - **Leads:** Supabase (Postgres)
 - **Notifications:** Twilio SMS + Resend email, both fired on lead insert
-- **Deploy target:** Vercel. Mobile-first.
+- **Deploy target:** Render (Node web service). Mobile-first.
 
 ## Project layout
 
@@ -51,11 +51,26 @@ npm run dev                  # http://localhost:3000
 
 `npm run build` runs a full production build + type-check.
 
+## Deploying to Render
+
+This repo includes `render.yaml`, a Render Blueprint for a Node web service:
+
+1. In Render, **New → Blueprint** and point it at this repo. It picks up
+   `render.yaml` (build `npm ci && npm run build`, start `npm run start`).
+2. Fill in every `sync: false` env var in the service's **Environment** tab
+   (all the secrets from `.env.example`). `CLAUDE_MODEL` and `NODE_VERSION`
+   already have values.
+3. Deploy. `next start` binds to Render's `$PORT` automatically; the
+   `/api/chat` route runs in the same Node process (no serverless config).
+
+Node version is pinned via `.node-version` (22) and `engines` in `package.json`.
+
 ## Environment variables
 
 See `.env.example`. Server-side only (never `NEXT_PUBLIC_*`): `ANTHROPIC_API_KEY`,
 `SUPABASE_SERVICE_ROLE_KEY`, all Twilio + Resend keys, `FOUNDER_PHONES`,
-`FOUNDER_EMAILS`. Set the same keys in Vercel's project settings.
+`FOUNDER_EMAILS`. Set the same keys in Render (dashboard → service → Environment),
+or let `render.yaml` declare them and fill the `sync: false` values there.
 
 - `CLAUDE_MODEL` defaults to `claude-sonnet-4-6` (fast + warm for high-volume chat).
 - `FOUNDER_PHONES` / `FOUNDER_EMAILS` are comma-separated so both founders are notified.
@@ -114,9 +129,12 @@ Twilio/Resend notifications.
 ## Security note
 
 `npm audit` reports residual Next.js advisories (mostly DoS / self-hosted image
-optimizer classes) only fully patched in Next 16, a breaking major upgrade. On
-Vercel for a marketing site the risk is low; revisit the Next 16 upgrade when
-convenient.
+optimizer classes) only fully patched in Next 16, a breaking major upgrade.
+Because Render self-hosts the Next image optimizer, the optimizer advisories
+are more relevant here than on a managed platform — worth scheduling the Next 16
+upgrade. As a quick mitigation, all `<Image>` use is first-party (`/public`
+assets, no untrusted remote `remotePatterns`), which avoids the highest-risk
+vectors. Revisit the upgrade when convenient.
 
 ## Note on legacy files
 

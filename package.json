@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Live music for Vancouver house parties — marketing site + adaptive booking chatbot.",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

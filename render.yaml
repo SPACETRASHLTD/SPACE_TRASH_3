@@ -1,0 +1,50 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploys the Next.js app as a long-lived Node web service.
+# Secrets are marked `sync: false`: set their values in the Render dashboard
+# (Environment tab), never commit them here.
+
+services:
+  - type: web
+    name: vancouver-house-party
+    runtime: node
+    plan: starter
+    region: oregon # change to your preferred region
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start # `next start` binds to Render's $PORT automatically
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+
+      # Anthropic (Claude) — powers the booking assistant.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CLAUDE_MODEL
+        value: claude-sonnet-4-6
+
+      # Supabase — lead capture.
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+      # Twilio — SMS notifications.
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM_NUMBER
+        sync: false
+
+      # Resend — email notifications.
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+
+      # Founder destinations (comma-separated for multiple recipients).
+      - key: FOUNDER_PHONES
+        sync: false
+      - key: FOUNDER_EMAILS
+        sync: false
