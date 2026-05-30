@@ -34,6 +34,10 @@ provider behind the `ModelRouter` Protocol without touching any node.
 
 ## Architecture
 
+![The Kubera Circuit](docs/circuit.png)
+
+*(regenerate with `python scripts/draw_circuit.py`)*
+
 ```
 START
   → emit          Bindu       frame the fixed goal through fence + identity
