@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+    /* Body text min 16px */
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Respect reduced-motion preferences. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Primary button — min 48px tall, warm gold accent. */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gold px-7
+      py-3.5 text-base font-medium text-cream transition-colors duration-200
+      ease-soft hover:bg-gold-dark focus-visible:outline-none focus-visible:ring-2
+      focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream;
+    min-height: 48px;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-full border border-line
+      bg-transparent px-6 py-3 text-base font-medium text-ink transition-colors
+      duration-200 ease-soft hover:border-gold hover:text-gold;
+    min-height: 48px;
+  }
+
+  /* Generous section spacing — 80px+ on mobile. */
+  .section {
+    @apply px-5 py-20 sm:px-8 md:py-28;
+  }
+
+  .container-content {
+    @apply mx-auto w-full max-w-content;
+  }
+
+  .eyebrow {
+    @apply text-sm font-medium uppercase tracking-[0.16em] text-gold;
+  }
+}
