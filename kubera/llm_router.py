@@ -89,17 +89,22 @@ def http_anthropic_client(
     max_tokens: int = 256,
     system: str | None = None,
     timeout: float = 30.0,
+    retries: int = 3,
 ) -> Client:
     """Dependency-free Anthropic client using only the stdlib (``urllib``).
 
     Mirrors the raw Messages API call (the same one ``curl`` makes), so no SDK
     install is required. The key is read from the ``api_key`` argument or the
-    ``ANTHROPIC_API_KEY`` environment variable — never hardcoded.
+    ``ANTHROPIC_API_KEY`` environment variable — never hardcoded. Retries
+    transient failures (429 / 5xx / network) with exponential backoff so a
+    sustained multi-call run survives a momentary rate limit.
     """
 
     def _client(model_id: str, prompt: str, **kwargs: Any) -> str:
         import json
         import os
+        import time
+        import urllib.error
         import urllib.request
 
         key = api_key or os.environ.get("ANTHROPIC_API_KEY")
@@ -120,8 +125,23 @@ def http_anthropic_client(
                 "content-type": "application/json",
             },
         )
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            data = json.loads(resp.read())
+        last_exc = None
+        for attempt in range(retries + 1):
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    data = json.loads(resp.read())
+                break
+            except urllib.error.HTTPError as exc:
+                last_exc = exc
+                if exc.code not in (408, 429, 500, 502, 503, 529) or attempt == retries:
+                    raise
+            except (urllib.error.URLError, TimeoutError) as exc:
+                last_exc = exc
+                if attempt == retries:
+                    raise
+            time.sleep(2 ** attempt)  # 1s, 2s, 4s backoff
+        else:  # pragma: no cover - loop always breaks or raises
+            raise last_exc
         text = "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
         usage = data.get("usage", {}) or {}
         return text, {"input": usage.get("input_tokens", 0), "output": usage.get("output_tokens", 0)}

@@ -87,6 +87,8 @@ def main(argv=None) -> int:
     print(f"  preexec blocks  : {circuit.audit.count('preexec_block')}")
     print(f"  best_fitness    : {m.get('best_fitness')}")
     print(f"  skills banked   : {len(circuit.skills)}")
+    print(f"  fitness history : {m.get('best_fitness_history')}")
+    print(f"  occupancy hist  : {m.get('archive_occupancy_history')}")
     print("  --- a few real trajectories (action -> verified) ---")
     for t in (final.get("trajectories") or [])[:5]:
         v = t.get("verified_outcome") or {}
