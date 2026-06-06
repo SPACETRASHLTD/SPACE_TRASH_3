@@ -42,7 +42,25 @@ python3 render3d.py         # writes preview images
 4. The head + window protrude past the nut — blow into the rectangular
    mouthpiece hole on the flange end.
 
-The flange has a Ø3.2 mm lanyard hole for a keyring.
+## Swing-cord channel (the "whirl"/howler)
+A **Ø4 mm cord bore** runs the length of the threaded shank along the **−X
+edge — the side opposite the fipple window** — so the air path is never
+touched. It exits **out the back face** of the flange and turns out to the
+**front shoulder** (opposite the tip, just past where the nut seats).
+
+```
+        front shoulder exit            back-face exit
+        (opposite the tip)                  │
+            ╲                                ▼
+   head ─────╲══════ threaded shank ═══════ flange
+              ╲____ cord channel (−X) ____,'
+```
+Thread a paracord in the back, along the threads, out the front; tie a stopper
+knot at the front so the **cord captures the nut + whistle**. Swing it on the
+cord and it howls. See `preview_plans.png`.
+
+Cord params in `gen_whistle.py`: `CORD_D` (bore Ø), `CORD_X` (edge offset),
+`CORD_EXIT` (front exit point).
 
 ## How it makes sound (the fipple)
 ```

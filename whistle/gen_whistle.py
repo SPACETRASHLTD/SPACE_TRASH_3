@@ -77,6 +77,22 @@ Z_CHAM1    = Z_HEAD1 - 1.6             # closed far wall of resonator
 MOUTH_W    = 6.0
 MOUTH_H    = 3.0       # taller at entry, tapers to FLUE_H at the flue exit
 
+# ---------------------------------------------------------------------------
+# Swing-cord channel  (the "whirl"/howler cord)
+# ---------------------------------------------------------------------------
+# A round bore on the -X edge (OPPOSITE the fipple window, which is on +X) runs
+# the full length of the threaded shank and exits the back face of the flange.
+# A short angled bore turns it out to the surface at the front (thread/head
+# shoulder, opposite the tip).  Thread a cord through it, knot the front, and
+# swing the nut+whistle on the cord -> it howls.  Kept clear of BOTH the
+# windway (+X) and the resonant chamber (Z > 22.6).
+CORD_D       = 4.0        # bore diameter (fits 550 paracord; "small hole")
+CORD_X       = -3.3       # offset toward the -X edge
+CORD_BACK_Z  = -0.5       # passes through the flange back face (Z=0)
+CORD_AXIAL_Z = 20.0       # front end of the straight axial run
+CORD_TURN_Z  = 18.0       # where the angled exit branches off
+CORD_EXIT    = (-8.6, 0.0, 22.6)   # exit point on the -X shoulder surface
+
 SEG = 256              # angular tessellation for round parts
 
 ENGINE = "manifold"
@@ -224,12 +240,15 @@ def build():
     ]
     voids.append(hexahedron(wedge))
 
-    # Lanyard hole through the flange (Y axis)
-    lan = trimesh.creation.cylinder(radius=1.6, height=FLANGE_D, sections=64)
-    lan.apply_transform(trimesh.transformations.rotation_matrix(np.pi/2,
-                                                                [1, 0, 0]))
-    lan.apply_translation((0, 0, FLANGE_LEN/2))
-    voids.append(lan)
+    # Swing-cord channel: axial run on the -X edge + angled exit at the front.
+    axial = trimesh.creation.cylinder(
+        radius=CORD_D/2, sections=48,
+        segment=[(CORD_X, 0, CORD_BACK_Z), (CORD_X, 0, CORD_AXIAL_Z)])
+    voids.append(axial)
+    exitb = trimesh.creation.cylinder(
+        radius=CORD_D/2, sections=48,
+        segment=[(CORD_X, 0, CORD_TURN_Z), CORD_EXIT])
+    voids.append(exitb)
 
     void = trimesh.boolean.union(voids, engine=ENGINE)
     whistle = trimesh.boolean.difference([body, void], engine=ENGINE)
@@ -259,4 +278,15 @@ if __name__ == "__main__":
     print("  air path X max: %.2f  (window open to outside: %s)" %
           (ahi[0], reaches_out))
     print("  AIR PATH CONTINUOUS:", reaches_mouth and reaches_out)
+
+    # --- cord channel must stay SEPARATE from the air path -----------------
+    # (2 disjoint voids = air path + cord channel; if they merged into 1 the
+    #  cord bore broke into the chamber/windway and the whistle would leak.)
+    print("\ncord channel separate from air path:", len(bodies) == 2)
+    cord = min(bodies, key=lambda b: b.volume)
+    clo, chi = cord.bounds
+    print("  cord Z: %.2f -> %.2f   exits back face: %s" %
+          (clo[2], chi[2], clo[2] <= 0.05))
+    print("  cord X: %.2f -> %.2f   exits -X surface: %s" %
+          (clo[0], chi[0], clo[0] <= -HEAD_R))
     print("\nwrote      :", out)
