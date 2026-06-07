@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Root Map — Self Scale Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+:root {
+  --bg: #f5f1ea;
+  --bg-2: #efe9df;
+  --ink: #2b2620;
+  --ink-soft: #6f665a;
+  --ink-faint: #a59a89;
+  --gold: #9a7b4f;
+  --gold-deep: #7d6038;
+  --line: #ddd4c5;
+  --card: #fffdf9;
+  --sp: #6c5ce7;
+  --ph: #c0392b;
+  --mn: #2980b9;
+  --good: #4f7d4a;
+  --shadow: 0 1px 2px rgba(60,48,30,.05), 0 8px 24px rgba(60,48,30,.06);
+  --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #fbf8f2 0%, var(--bg) 55%) fixed;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 18px 60px;
+}
+
+/* ---------- typography ---------- */
+.kicker {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.display {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(38px, 7vw, 60px);
+  line-height: 1.02;
+  letter-spacing: .01em;
+  margin: 0;
+}
+.subtitle {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(17px, 3vw, 21px);
+  color: var(--ink-soft);
+  margin: 4px 0 0;
+}
+.sec-title {
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.sec-sub { color: var(--ink-soft); font-size: 13.5px; margin: 0 0 16px; }
+.mini-title {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 600;
+  margin: 22px 0 10px;
+}
+
+/* ---------- boot fallback (shown only if JS doesn't run) ---------- */
+.boot-fallback { max-width: 460px; margin: 60px auto; text-align: center; color: var(--ink-soft); padding: 0 18px; }
+.boot-title { font-family: var(--serif); font-size: 40px; font-weight: 600; color: var(--ink); margin: 0 0 6px; }
+.boot-hint { font-size: 13.5px; color: var(--ink-faint); margin-top: 14px; line-height: 1.5; }
+
+/* ---------- onboarding ---------- */
+.onboard { padding: 24px 4px; text-align: center; }
+.onboard .subtitle { max-width: 560px; margin: 10px auto 0; }
+.arch-grid {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+}
+.arch-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 16px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  box-shadow: var(--shadow);
+}
+.arch-card:hover { transform: translateY(-3px); border-color: var(--gold); box-shadow: 0 10px 26px rgba(122,96,56,.14); }
+.arch-name { font-family: var(--serif); font-size: 24px; font-weight: 600; }
+.arch-tag { font-family: var(--serif); font-style: italic; color: var(--ink-soft); font-size: 14px; }
+.arch-bleed { margin-top: 8px; font-size: 11.5px; color: var(--gold-deep); font-weight: 600; letter-spacing: .02em; }
+
+/* ---------- hero ---------- */
+.hero { padding: 8px 4px 4px; margin-bottom: 18px; }
+.hero-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.bleed-badge {
+  margin-top: 18px;
+  border-left: 3px solid var(--gold);
+  padding: 8px 14px;
+  background: linear-gradient(90deg, rgba(154,123,79,.10), transparent);
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  border-radius: 0 8px 8px 0;
+}
+.bleed-badge span {
+  display: block;
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  font-weight: 600;
+  margin-bottom: 1px;
+}
+
+/* ---------- cards ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 22px 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* ---------- buttons ---------- */
+.ghost-btn {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gold-deep);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+  white-space: nowrap;
+}
+.ghost-btn:hover { background: var(--bg-2); border-color: var(--gold); }
+
+/* ---------- pillars ---------- */
+.pillar-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.pillar {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 14px;
+  background: var(--bg);
+  text-align: center;
+}
+.pillar-name { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; }
+.pillar-val { font-family: var(--serif); font-size: 46px; font-weight: 600; line-height: 1; margin: 6px 0 10px; }
+.pillar-bar { height: 7px; border-radius: 99px; background: #e7ddcd; overflow: hidden; }
+.pillar-bar span { display: block; height: 100%; border-radius: 99px; transition: width .35s ease; }
+.pillar-sp .pillar-val, .pillar-sp .pillar-name { color: var(--sp); }
+.pillar-ph .pillar-val, .pillar-ph .pillar-name { color: var(--ph); }
+.pillar-mn .pillar-val, .pillar-mn .pillar-name { color: var(--mn); }
+.pillar-sp .pillar-bar span { background: var(--sp); }
+.pillar-ph .pillar-bar span { background: var(--ph); }
+.pillar-mn .pillar-bar span { background: var(--mn); }
+.pillar-earned { margin-top: 8px; font-size: 11.5px; color: var(--ink-faint); font-weight: 500; }
+
+/* ---------- level up need ---------- */
+.need-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.need-item { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--bg); }
+.need-item.met { border-color: var(--good); background: #f1f6ef; }
+.need-head { display: flex; justify-content: space-between; align-items: baseline; font-weight: 600; font-size: 13.5px; }
+.need-count { font-size: 12px; color: var(--ink-soft); }
+.mini-bar { height: 6px; border-radius: 99px; background: #e7ddcd; overflow: hidden; margin-top: 9px; }
+.mini-bar span { display: block; height: 100%; background: var(--gold); transition: width .35s ease; }
+.need-item.met .mini-bar span { background: var(--good); }
+.need-msg { margin: 14px 0 0; font-size: 13px; color: var(--ink-soft); }
+.need-msg.ready { color: var(--good); font-weight: 600; }
+
+/* ---------- tracker ---------- */
+.tracker-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.week-nav { display: flex; align-items: center; gap: 8px; }
+.week-label { font-family: var(--serif); font-size: 19px; font-weight: 600; min-width: 78px; text-align: center; }
+
+.table-wrap { overflow-x: auto; }
+table.tracker { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
+table.tracker th {
+  font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600; padding: 6px 4px; text-align: center;
+}
+table.tracker th.src-col { text-align: left; }
+table.tracker td { padding: 9px 4px; border-top: 1px solid var(--line); vertical-align: middle; }
+.src-col { width: 46%; }
+.src-label { font-weight: 500; color: var(--ink); }
+.src-detail { font-size: 11.5px; color: var(--ink-faint); margin-top: 2px; }
+.src-freq { display: inline-block; margin-top: 4px; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold-deep); border: 1px solid var(--line); border-radius: 99px; padding: 1px 7px; }
+.day-cell { text-align: center; }
+.pts-col { text-align: right; white-space: nowrap; font-size: 11px; color: var(--ink-soft); font-weight: 600; }
+
+.dot {
+  width: 24px; height: 24px; border-radius: 7px;
+  border: 1.5px solid var(--line); background: var(--card);
+  cursor: pointer; padding: 0; transition: all .12s ease;
+}
+.dot:hover { border-color: var(--gold); }
+.dot.on { background: var(--gold); border-color: var(--gold); box-shadow: inset 0 0 0 2px var(--card); }
+
+.wk-cell { text-align: center; }
+.wk-btn {
+  font-family: var(--sans); font-size: 12.5px; font-weight: 600;
+  border: 1.5px solid var(--line); background: var(--card); color: var(--ink-soft);
+  border-radius: 99px; padding: 6px 18px; cursor: pointer; transition: all .12s ease;
+}
+.wk-btn:hover { border-color: var(--gold); }
+.wk-btn.on { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+/* tally */
+.tally { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.tally-cell { border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: center; background: var(--bg); }
+.tally-cell span { display: block; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; }
+.tally-cell b { font-family: var(--serif); font-size: 28px; font-weight: 600; }
+.tally-cell.total { background: linear-gradient(180deg, #fbf3e6, #f6ead4); border-color: #e6d2ad; }
+.tally-cell.total b { color: var(--gold-deep); }
+
+/* ---------- self scale score table ---------- */
+table.score-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 460px; margin-top: 4px; }
+table.score-table th {
+  font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600; padding: 7px 6px; text-align: center;
+}
+table.score-table th:first-child { text-align: left; }
+table.score-table td { padding: 8px 6px; border-top: 1px solid var(--line); text-align: center; vertical-align: middle; }
+.score-label { text-align: left; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
+.score-auto td { color: var(--gold-deep); font-weight: 600; background: rgba(154,123,79,.05); }
+.score-total { font-family: var(--serif); font-size: 18px; font-weight: 600; }
+.score-input {
+  width: 56px; text-align: center; font-family: var(--sans); font-size: 14px; font-weight: 600;
+  color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 6px 4px; background: var(--card);
+}
+.score-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(154,123,79,.12); }
+.score-hint { font-size: 12px; color: var(--ink-faint); margin: 10px 0 0; }
+
+/* ---------- missions ---------- */
+.mission-list { display: flex; flex-direction: column; gap: 10px; }
+.mission {
+  display: flex; align-items: center; gap: 12px; text-align: left;
+  border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px;
+  background: var(--bg); cursor: pointer; font-family: var(--sans); transition: all .12s ease;
+}
+.mission:hover { border-color: var(--gold); }
+.mission .check {
+  flex: 0 0 22px; width: 22px; height: 22px; border-radius: 6px;
+  border: 1.5px solid var(--ink-faint); display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 700;
+}
+.mission-label { flex: 1; font-size: 14px; color: var(--ink); }
+.mission-xp { font-size: 11.5px; color: var(--gold-deep); font-weight: 600; white-space: nowrap; }
+.mission.done { background: #f1f6ef; border-color: var(--good); }
+.mission.done .check { background: var(--good); border-color: var(--good); }
+.mission.done .mission-label { color: var(--ink-soft); }
+
+/* ---------- unlocks ---------- */
+.unlock-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.unlock {
+  border: 1px dashed var(--line); border-radius: 14px; padding: 18px;
+  background: var(--bg); position: relative; overflow: hidden;
+}
+.unlock-status { font-size: 10px; letter-spacing: .16em; font-weight: 700; color: var(--ink-faint); }
+.unlock-name { font-family: var(--serif); font-size: 26px; font-weight: 600; margin: 6px 0 8px; color: var(--ink-soft); }
+.unlock-cond { font-size: 12.5px; color: var(--ink-soft); }
+.unlock.unlocked {
+  border-style: solid; border-color: var(--gold);
+  background: linear-gradient(180deg, #fcf5e8, #f7ecd6);
+  box-shadow: 0 8px 22px rgba(122,96,56,.14);
+}
+.unlock.unlocked .unlock-status { color: var(--gold-deep); }
+.unlock.unlocked .unlock-name { color: var(--gold-deep); }
+
+/* ---------- notes ---------- */
+.note-card { background: linear-gradient(180deg, #fffdf9, #faf5ec); }
+.note-body { font-family: var(--serif); font-size: 19px; line-height: 1.5; color: var(--ink); margin: 0 0 6px; }
+.note-list { margin: 0; padding-left: 18px; color: var(--ink-soft); font-size: 13.5px; }
+.note-list li { margin-bottom: 8px; }
+
+/* ---------- footer ---------- */
+.foot { text-align: center; color: var(--ink-faint); font-size: 12.5px; margin-top: 28px; }
+.foot p { margin: 3px 0; }
+.foot a { color: var(--gold-deep); text-decoration: none; font-weight: 600; }
+.foot a:hover { text-decoration: underline; }
+.foot-tools { margin-top: 18px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.foot-btn {
+  background: transparent; border: 1px solid var(--line);
+  color: var(--gold-deep); font-family: var(--sans); font-weight: 600;
+  font-size: 12px; padding: 7px 16px; border-radius: 99px; cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.foot-btn:hover { background: var(--bg-2); border-color: var(--gold); }
+.foot-btn.danger { color: var(--ink-faint); }
+.foot-btn.danger:hover { border-color: var(--ph); color: var(--ph); background: transparent; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 560px) {
+  .pillar-val { font-size: 38px; }
+  .tally { grid-template-columns: repeat(2, 1fr); }
+  .hero-row { flex-direction: column; align-items: flex-start; }
+  .bleed-badge { font-size: 18px; }
+}
+
+  </style>
+</head>
+<body>
+  <main id="app">
+    <div class="boot-fallback">
+      <p class="boot-title">The Root Map</p>
+      <p>Loading…</p>
+      <p class="boot-hint">If this screen stays still, this page needs to be opened in a web browser
+      (Chrome, Safari, Edge, Firefox) with JavaScript enabled — a file preview can't run it.
+      Save the file and open it in your browser.</p>
+    </div>
+    <noscript>
+      <div class="boot-fallback">
+        <p class="boot-title">The Root Map</p>
+        <p>This app needs JavaScript to run. Please open it in a web browser with JavaScript enabled.</p>
+      </div>
+    </noscript>
+  </main>
+  <script>
+/*
+ * THE ROOT MAP — data model
+ * Faithful encoding of the Self Scale archetype cheat sheet.
+ *
+ * Pillars: sp = Spiritual, ph = Physical, mn = Mental
+ * freq:    'daily'      -> seven day cells (Mon..Sun), points per checked day
+ *          'weekly'     -> one mark per week
+ *          'completion' -> one-off completion this week
+ */
+
+const PILLARS = [
+  { key: 'sp', name: 'Spiritual', abbr: 'SP' },
+  { key: 'ph', name: 'Physical', abbr: 'PH' },
+  { key: 'mn', name: 'Mental', abbr: 'MN' },
+];
+
+const PILLAR_NAME = { sp: 'Spiritual', ph: 'Physical', mn: 'Mental' };
+
+/* Tier One — base stats. Active for every archetype, every day. */
+const TIER_ONE = [
+  {
+    id: 't1_env',
+    label: 'Dark, cool, quiet sleep environment',
+    detail: '+5 all pillars / night',
+    freq: 'daily',
+    pts: { sp: 5, ph: 5, mn: 5 },
+  },
+  {
+    id: 't1_wind',
+    label: 'Consistent wind-down routine, same time nightly',
+    detail: '+3 all pillars / night',
+    freq: 'daily',
+    pts: { sp: 3, ph: 3, mn: 3 },
+  },
+  {
+    id: 't1_midnight',
+    label: 'In bed before midnight',
+    detail: '+5 all pillars / night',
+    freq: 'daily',
+    pts: { sp: 5, ph: 5, mn: 5 },
+  },
+  {
+    id: 't1_move',
+    label: '20 minutes easy, intentional movement',
+    detail: '+4 Physical / session',
+    freq: 'daily',
+    pts: { ph: 4 },
+  },
+  {
+    id: 't1_breath',
+    label: 'Resonant breathing — 5–6 bpm, extended exhale, 5–10 min',
+    detail: '+4 Spiritual, +3 Mental / session',
+    freq: 'daily',
+    pts: { sp: 4, mn: 3 },
+  },
+];
+
+/*
+ * Archetype-specific XP sources only.
+ * Generic breathwork / 20-min movement / sleep are NOT repeated here — they
+ * live in Tier One above so nothing is double counted.
+ */
+const ARCHETYPES = {
+  warrior: {
+    name: 'The Warrior',
+    tagline: 'Physical dominant',
+    bleed: 'Force Over Presence',
+    note: 'The Warrior believes more force applied to any situation eventually produces the result he wants. The internal world does not respond to force. Presence, stillness, and the willingness to feel without acting are exactly what his Spiritual and Mental pillars are starving for.',
+    need: { sp: 20, mn: 15 },
+    sources: [
+      { id: 'w_still', label: 'Stillness practice — 5 mins, producing nothing', freq: 'daily', pts: { sp: 3 } },
+      { id: 'w_emo', label: 'Emotional vocabulary — name what you feel, once daily', freq: 'daily', pts: { sp: 2 } },
+      { id: 'w_pause', label: 'The pause — 60s before acting on the "push harder" impulse', freq: 'daily', pts: { mn: 3 } },
+      { id: 'w_reflect', label: 'Weekly reflection', freq: 'weekly', pts: { mn: 5 } },
+    ],
+    missions: [
+      { id: 'wm1', label: 'Set up sleep environment tonight', xp: { sp: 10, ph: 10, mn: 10 }, note: '+10 all pillars' },
+      { id: 'wm2', label: 'Breathwork 7 consecutive days', xp: { sp: 28 }, note: '+28 Spiritual' },
+      { id: 'wm3', label: 'Use "the pause" once daily', xp: { mn: 3 }, note: '+3 Mental per use' },
+    ],
+    unlocks: [
+      { label: 'The Craftsman', cond: { sp: 65, mn: 60 } },
+      { label: 'The Sovereign', cond: { all: 70 } },
+    ],
+  },
+
+  seeker: {
+    name: 'The Seeker',
+    tagline: 'Spiritual dominant',
+    bleed: 'Seeking Effects, Missing The Cause',
+    note: 'A man of genuine curiosity who self-sabotages every time real depth becomes available — the next interesting thing appears before the current one has changed him. Completion as identity is the medicine.',
+    need: { ph: 20, mn: 15 },
+    sources: [
+      { id: 's_one', label: 'The one-practice rule — one practice held for 90 days', freq: 'weekly', pts: { mn: 5 } },
+      { id: 's_cause', label: 'Cause journal — "what is my role in creating this?"', freq: 'daily', pts: { mn: 4 } },
+      { id: 's_comp', label: 'Completion over consumption — finish before starting new', freq: 'daily', pts: { mn: 3 } },
+    ],
+    missions: [
+      { id: 'skm1', label: 'Name & commit to your 90-day practice tonight', xp: { mn: 5 }, note: '+5 Mental' },
+      { id: 'skm2', label: 'Breathwork 7 consecutive days', xp: { sp: 28 }, note: '+28 Spiritual' },
+      { id: 'skm3', label: 'Write one cause-journal entry', xp: { mn: 4 }, note: '+4 Mental' },
+    ],
+    unlocks: [
+      { label: 'The Craftsman', cond: { ph: 60, mn: 65 } },
+      { label: 'The Sovereign', cond: { all: 70 } },
+    ],
+  },
+
+  sovereign: {
+    name: 'The Sovereign',
+    tagline: 'Spiritually developed',
+    bleed: 'New Knowledge, Same Identity',
+    note: 'The most developed and the most subtly stuck — adding knowledge to an identity that never changes. Real transformation is not additive; it requires the current identity to dissolve enough for a new one to form.',
+    need: { ph: 15, mn: 15 },
+    sources: [
+      { id: 'sv_embody', label: 'Embodiment practice — one principle lived 30 days, no new inputs', freq: 'weekly', pts: { sp: 5 } },
+      { id: 'sv_release', label: 'Identity release — 20 min honest writing, no editing', freq: 'weekly', pts: { sp: 4 } },
+      { id: 'sv_char', label: 'The character question — end of day', freq: 'daily', pts: { mn: 3 } },
+    ],
+    missions: [
+      { id: 'svm1', label: 'Write identity-release response tonight — 20 min, no editing', xp: { sp: 4 }, note: '+4 Spiritual' },
+      { id: 'svm2', label: 'Choose one principle to embody for 30 days', xp: { sp: 5 }, note: '+5 Spiritual' },
+      { id: 'svm3', label: 'Breathwork with 2 minutes silence after', xp: { sp: 6 }, note: '+6 Spiritual' },
+    ],
+    unlocks: [
+      { label: 'The Fully Realised Sovereign', cond: { ph: 65, mn: 65 } },
+      { label: 'Master level', cond: { all: 75 } },
+    ],
+  },
+
+  craftsman: {
+    name: 'The Craftsman',
+    tagline: 'Physical dominant',
+    bleed: 'All Tools, No Personal Blueprint',
+    note: 'Skill and discipline in abundance, but it all goes to executing other people\'s blueprints. The project with no external demand sits unbuilt. Listen for what he actually wants to build, then begin before the plan is complete.',
+    need: { sp: 20, mn: 10 },
+    sources: [
+      { id: 'c_intuition', label: 'Intuition log — 5 min, no phone: "what do I want to build?"', freq: 'daily', pts: { sp: 3 } },
+      { id: 'c_project', label: 'One personal project — 30 min per week', freq: 'weekly', pts: { sp: 5 } },
+      { id: 'c_begin', label: 'Begin before the blueprint — one action within 24h of an idea', freq: 'daily', pts: { mn: 4 } },
+    ],
+    missions: [
+      { id: 'cm1', label: 'Start intuition log tomorrow morning', xp: { sp: 3 }, note: '+3 Spiritual' },
+      { id: 'cm2', label: 'Identify a personal project & take one action this week', xp: { sp: 9 }, note: '+9 Spiritual' },
+      { id: 'cm3', label: 'Set up sleep environment tonight', xp: { sp: 10, ph: 10, mn: 10 }, note: '+10 all pillars' },
+    ],
+    unlocks: [
+      { label: 'The Complete Craftsman', cond: { sp: 65 } },
+      { label: 'The Sovereign', cond: { sp: 70, mn: 65 } },
+    ],
+  },
+
+  scholar: {
+    name: 'The Scholar',
+    tagline: 'Mental dominant',
+    bleed: 'Mental Indigestion',
+    note: 'He keeps consuming without digesting. The knowing replaced the becoming. Stay with something simple long enough to be changed by it — implement one principle instead of finding the next framework.',
+    need: { ph: 20, sp: 15 },
+    sources: [
+      { id: 'sc_book', label: 'The one-book rule — no new book until current one applied 30 days', freq: 'weekly', pts: { mn: 5 } },
+      { id: 'sc_sweat', label: 'Sweat equity — implement one principle daily for 60 days', freq: 'daily', pts: { mn: 4 } },
+      { id: 'sc_impl', label: 'Implementation question — before any new input', freq: 'daily', pts: { mn: 3 } },
+    ],
+    missions: [
+      { id: 'scm1', label: 'Identify least-applied principle — implement it from tomorrow', xp: { mn: 4 }, note: '+4 Mental' },
+      { id: 'scm2', label: 'Begin breathwork tonight — no research, just do it', xp: { sp: 4 }, note: '+4 Spiritual' },
+      { id: 'scm3', label: 'Write the implementation-question answer', xp: { mn: 3 }, note: '+3 Mental' },
+    ],
+    unlocks: [
+      { label: 'The Visionary', cond: { ph: 60, sp: 60 } },
+      { label: 'The Sovereign', cond: { all: 70 } },
+    ],
+  },
+
+  visionary: {
+    name: 'The Visionary',
+    tagline: 'Mental dominant',
+    bleed: 'Dreaming Instead Of Building',
+    note: 'First to arrive at the race, last to begin it — the dream stays perfect while unbuilt. He generates without completing. One minimum-viable action makes a project more real than any amount of planning.',
+    need: { ph: 20, sp: 15 },
+    sources: [
+      { id: 'v_mvs', label: 'Minimum viable start — one action within 24h of any 7-day-old idea', freq: 'daily', pts: { mn: 5 } },
+      { id: 'v_record', label: 'Completion record — review weekly', freq: 'weekly', pts: { mn: 3 } },
+      { id: 'v_deadline', label: 'Dream to deadline — first deliverable for an old idea', freq: 'daily', pts: { mn: 4 } },
+    ],
+    missions: [
+      { id: 'vm1', label: 'Idea in your head 30+ days — take minimum viable first action today', xp: { mn: 5 }, note: '+5 Mental' },
+      { id: 'vm2', label: 'Breathwork daily', xp: { sp: 4 }, note: '+4 Spiritual' },
+      { id: 'vm3', label: 'Write the completion record', xp: { mn: 3 }, note: '+3 Mental' },
+    ],
+    unlocks: [
+      { label: 'The Fully Realised Visionary', cond: { ph: 65, sp: 60 } },
+      { label: 'The Sovereign', cond: { all: 70 } },
+    ],
+  },
+
+  builder: {
+    name: 'The Builder',
+    tagline: 'Balanced',
+    bleed: 'Building For Everyone, Not The Builder',
+    note: 'A dull blade — the right tool, dull from continuous use without maintenance. The sharpening is the most important part of the work. One protected hour a week that belongs only to him.',
+    need: { sp: 20, ph: 15, mn: 10 },
+    sources: [
+      { id: 'b_hour', label: 'The protected hour — one hour weekly, yours only', freq: 'weekly', pts: { sp: 8 } },
+      { id: 'b_sharpen', label: 'The sharpening question — "what did I do for my own development?"', freq: 'weekly', pts: { mn: 3 } },
+    ],
+    missions: [
+      { id: 'bm1', label: 'Set up sleep environment tonight', xp: { sp: 10, ph: 10, mn: 10 }, note: '+10 all pillars' },
+      { id: 'bm2', label: 'Schedule the protected hour this week', xp: { sp: 8 }, note: '+8 Spiritual' },
+      { id: 'bm3', label: 'Begin breathwork at lunch or before bed', xp: { sp: 7, mn: 3 }, note: '+7 Spiritual + Mental' },
+    ],
+    unlocks: [
+      { label: 'The Master Builder', cond: { sp: 65 } },
+      { label: 'The Sovereign', cond: { all: 70 } },
+    ],
+  },
+
+  connector: {
+    name: 'The Connector',
+    tagline: 'Balanced',
+    bleed: 'Pouring From An Empty Cup',
+    note: 'He pours warmth outward believing the cup is filled in return. It rarely is. He needs a source — practices that belong entirely to him, where no relationship is being served.',
+    need: { sp: 25, mn: 10 },
+    sources: [
+      { id: 'cn_solitude', label: 'Solitude practice — 30 mins weekly, no input', freq: 'weekly', pts: { sp: 5 } },
+      { id: 'cn_receive', label: 'Receiving practice — let one thing in without deflecting', freq: 'daily', pts: { sp: 3 } },
+      { id: 'cn_cup', label: 'The cup check — "am I giving from fullness or emptiness?"', freq: 'daily', pts: { mn: 3 } },
+    ],
+    missions: [
+      { id: 'cnm1', label: 'Breathwork tomorrow morning, before anyone needs anything', xp: { sp: 4 }, note: '+4 Spiritual' },
+      { id: 'cnm2', label: 'Schedule 30 minutes solitude this week', xp: { sp: 5 }, note: '+5 Spiritual' },
+      { id: 'cnm3', label: 'Answer the cup check in writing right now', xp: { mn: 3 }, note: '+3 Mental' },
+    ],
+    unlocks: [
+      { label: 'The Connector Who Is Full', cond: { sp: 70 } },
+      { label: 'The Sovereign', cond: { all: 70 } },
+    ],
+  },
+
+  protector: {
+    name: 'The Protector',
+    tagline: 'Balanced',
+    bleed: 'Guarding Everyone, Known By No One',
+    note: 'He absorbs impact so others stay safe — but no one fully knows him. The work is building an identity that exists independent of what he protects and provides. Practice being seen.',
+    need: { sp: 25, mn: 10 },
+    sources: [
+      { id: 'p_known', label: 'Practice of being known — one honest conversation weekly', freq: 'weekly', pts: { sp: 6 } },
+      { id: 'p_receive', label: 'Receiving practice — let one thing in without deflecting', freq: 'daily', pts: { sp: 3 } },
+      { id: 'p_audit', label: 'Identity audit — "who am I when I am not protecting anyone?"', freq: 'weekly', pts: { mn: 4 } },
+    ],
+    missions: [
+      { id: 'pm1', label: 'One honest conversation this week — one true thing', xp: { sp: 6 }, note: '+6 Spiritual' },
+      { id: 'pm2', label: 'Breathwork tomorrow morning, before the day begins', xp: { sp: 4 }, note: '+4 Spiritual' },
+      { id: 'pm3', label: 'Identity audit in writing — 20 min, no editing', xp: { mn: 4 }, note: '+4 Mental' },
+    ],
+    unlocks: [
+      { label: 'The Guardian', cond: { sp: 70 } },
+      { label: 'The Sovereign', cond: { all: 70 } },
+    ],
+  },
+
+  merchant: {
+    name: 'The Merchant',
+    tagline: 'Balanced',
+    bleed: 'Net Worth Over Inner Worth',
+    note: 'He is trying to prove material wealth compensates for inner wealth. His scales of value were never recalibrated. "What do I have that cannot be taken from me?" and "today was enough" rewire the register.',
+    need: { sp: 25, mn: 10 },
+    sources: [
+      { id: 'm_inventory', label: 'Inner wealth inventory — "what can\'t be taken from me?" weekly', freq: 'weekly', pts: { sp: 5 } },
+      { id: 'm_enough', label: 'The enough practice — one sentence before sleep, nightly', freq: 'daily', pts: { sp: 3 } },
+      { id: 'm_reference', label: 'Seek a different reference point — read one biography', freq: 'completion', pts: { sp: 8 } },
+    ],
+    missions: [
+      { id: 'mm1', label: 'Breathwork tonight lying down — last thing before sleep', xp: { sp: 4 }, note: '+4 Spiritual' },
+      { id: 'mm2', label: 'Write the inner-wealth inventory — 20 min', xp: { sp: 5 }, note: '+5 Spiritual' },
+      { id: 'mm3', label: 'Write the "enough" sentence tonight', xp: { sp: 3 }, note: '+3 Spiritual' },
+    ],
+    unlocks: [
+      { label: 'The Sovereign Merchant', cond: { sp: 70 } },
+      { label: 'The Sovereign', cond: { all: 70 } },
+    ],
+  },
+};
+
+const ARCHETYPE_ORDER = [
+  'warrior', 'seeker', 'sovereign', 'craftsman', 'scholar',
+  'visionary', 'builder', 'connector', 'protector', 'merchant',
+];
+
+  </script>
+  <script>
+/* THE ROOT MAP — interactive tracker */
+(function () {
+  'use strict';
+
+  var STORE_KEY = 'rootmap.v1';
+  var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var MAX_SCORE = 100;
+
+  /* ---------------------------------------------------------------- state */
+  var state = load();
+
+  function blankState() {
+    return {
+      archetype: null,
+      baseline: { sp: 40, ph: 40, mn: 40 },
+      week: 0,
+      weeks: {},        // { weekIndex: { sourceId: [bool x7] | bool } }
+      missions: {},     // { missionId: bool }   one-time onboarding bonuses
+      scores: {},       // { weekIndex: { start:{sp,ph,mn}, end:{sp,ph,mn} } }
+    };
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return blankState();
+      var s = JSON.parse(raw);
+      return Object.assign(blankState(), s);
+    } catch (e) {
+      return blankState();
+    }
+  }
+
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ------------------------------------------------------------- helpers */
+  function arch() { return ARCHETYPES[state.archetype]; }
+
+  // Every trackable source for the current archetype = Tier One + specific.
+  function allSources() { return TIER_ONE.concat(arch().sources); }
+
+  function weekData(w) {
+    if (!state.weeks[w]) state.weeks[w] = {};
+    return state.weeks[w];
+  }
+
+  function weekScores(w) {
+    if (!state.scores[w]) {
+      state.scores[w] = { start: { sp: '', ph: '', mn: '' }, end: { sp: '', ph: '', mn: '' } };
+    }
+    return state.scores[w];
+  }
+
+  function getToggle(w, src) {
+    var wd = weekData(w);
+    if (src.freq === 'daily') {
+      if (!Array.isArray(wd[src.id])) wd[src.id] = [false, false, false, false, false, false, false];
+      return wd[src.id];
+    }
+    if (typeof wd[src.id] !== 'boolean') wd[src.id] = false;
+    return wd[src.id];
+  }
+
+  // Sum XP earned in every pillar across all weeks + completed missions.
+  function totalEarned() {
+    var e = { sp: 0, ph: 0, mn: 0 };
+    var srcs = allSources();
+    Object.keys(state.weeks).forEach(function (w) {
+      srcs.forEach(function (src) {
+        var t = state.weeks[w][src.id];
+        var count = 0;
+        if (src.freq === 'daily') {
+          if (Array.isArray(t)) count = t.filter(Boolean).length;
+        } else if (t === true) {
+          count = 1;
+        }
+        if (!count) return;
+        for (var p in src.pts) e[p] += src.pts[p] * count;
+      });
+    });
+    // one-time onboarding missions
+    arch().missions.forEach(function (m) {
+      if (state.missions[m.id]) {
+        for (var p in m.xp) e[p] += m.xp[p];
+      }
+    });
+    return e;
+  }
+
+  function weekEarned(w) {
+    var e = { sp: 0, ph: 0, mn: 0 };
+    allSources().forEach(function (src) {
+      var t = weekData(w)[src.id];
+      var count = 0;
+      if (src.freq === 'daily') { if (Array.isArray(t)) count = t.filter(Boolean).length; }
+      else if (t === true) count = 1;
+      if (!count) return;
+      for (var p in src.pts) e[p] += src.pts[p] * count;
+    });
+    return e;
+  }
+
+  function scores() {
+    var e = totalEarned();
+    return {
+      sp: Math.min(MAX_SCORE, state.baseline.sp + e.sp),
+      ph: Math.min(MAX_SCORE, state.baseline.ph + e.ph),
+      mn: Math.min(MAX_SCORE, state.baseline.mn + e.mn),
+      earned: e,
+    };
+  }
+
+  function condMet(cond, sc) {
+    if (cond.all != null) {
+      return sc.sp >= cond.all && sc.ph >= cond.all && sc.mn >= cond.all;
+    }
+    for (var p in cond) { if (sc[p] < cond[p]) return false; }
+    return true;
+  }
+
+  function el(tag, cls, html) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (html != null) n.innerHTML = html;
+    return n;
+  }
+
+  function ptsLabel(pts) {
+    return Object.keys(pts).map(function (p) {
+      return '+' + pts[p] + ' ' + p.toUpperCase();
+    }).join('  ');
+  }
+
+  /* ------------------------------------------------------------ rendering */
+  var root = document.getElementById('app');
+
+  function render() {
+    if (!state.archetype) { renderOnboarding(); return; }
+    root.innerHTML = '';
+    root.appendChild(renderHeader());
+    root.appendChild(renderPillars());
+    root.appendChild(renderLevelUp());
+    root.appendChild(renderTracker());
+    root.appendChild(renderMissions());
+    root.appendChild(renderUnlocks());
+    root.appendChild(renderGuidance());
+    root.appendChild(renderFooter());
+    window.scrollTo(0, 0);
+  }
+
+  /* --- onboarding ------------------------------------------------------ */
+  function renderOnboarding() {
+    root.innerHTML = '';
+    var wrap = el('div', 'onboard');
+    wrap.appendChild(el('p', 'kicker', 'THE ROOT WORK'));
+    wrap.appendChild(el('h1', 'display', 'The Root Map'));
+    wrap.appendChild(el('p', 'subtitle', 'Your archetype cheat sheet, made playable. Choose your character and set your starting stats.'));
+
+    var grid = el('div', 'arch-grid');
+    ARCHETYPE_ORDER.forEach(function (key) {
+      var a = ARCHETYPES[key];
+      var card = el('button', 'arch-card');
+      card.innerHTML = '<span class="arch-name">' + a.name + '</span>' +
+        '<span class="arch-tag">' + a.tagline + '</span>' +
+        '<span class="arch-bleed">' + a.bleed + '</span>';
+      card.addEventListener('click', function () {
+        state.archetype = key;
+        // ensure a week exists
+        weekData(0);
+        save();
+        render();
+      });
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+    root.appendChild(wrap);
+  }
+
+  /* --- header ---------------------------------------------------------- */
+  function renderHeader() {
+    var a = arch();
+    var h = el('header', 'hero');
+    h.innerHTML =
+      '<p class="kicker">THE ROOT WORK · SELF SCALE</p>' +
+      '<div class="hero-row">' +
+        '<div>' +
+          '<h1 class="display">' + a.name + '</h1>' +
+          '<p class="subtitle">' + a.tagline + '</p>' +
+        '</div>' +
+        '<button class="ghost-btn" id="changeArch">Change archetype</button>' +
+      '</div>' +
+      '<div class="bleed-badge"><span>STAT BLEED</span>' + a.bleed + '</div>';
+    h.querySelector('#changeArch').addEventListener('click', function () {
+      if (confirm('Switch archetype? Your stats and history are kept, but the tracker shows the new archetype\'s practices.')) {
+        state.archetype = null;
+        render();
+      }
+    });
+    return h;
+  }
+
+  /* --- pillar dashboard ------------------------------------------------ */
+  function renderPillars() {
+    var sc = scores();
+    var sec = el('section', 'card');
+    sec.appendChild(el('h2', 'sec-title', 'Self Scale'));
+    sec.appendChild(el('p', 'sec-sub', 'Baseline + every XP point you have banked. Cap 100.'));
+    var row = el('div', 'pillar-row');
+    PILLARS.forEach(function (p) {
+      var val = sc[p.key];
+      var earned = sc.earned[p.key];
+      var c = el('div', 'pillar pillar-' + p.key);
+      c.innerHTML =
+        '<div class="pillar-name">' + p.name + '</div>' +
+        '<div class="pillar-val">' + val + '</div>' +
+        '<div class="pillar-bar"><span style="width:' + val + '%"></span></div>' +
+        '<div class="pillar-earned">' + (earned > 0 ? '+' + earned + ' earned' : 'no XP yet') + '</div>';
+      row.appendChild(c);
+    });
+    sec.appendChild(row);
+    return sec;
+  }
+
+  /* --- level up requirement ------------------------------------------- */
+  function renderLevelUp() {
+    var sc = scores();
+    var need = arch().need;
+    var sec = el('section', 'card');
+    sec.appendChild(el('h2', 'sec-title', 'To level up you need'));
+    var list = el('div', 'need-row');
+    var allMet = true;
+    Object.keys(need).forEach(function (p) {
+      var target = need[p];
+      var got = sc.earned[p];
+      var done = got >= target;
+      if (!done) allMet = false;
+      var item = el('div', 'need-item' + (done ? ' met' : ''));
+      var pct = Math.min(100, Math.round((got / target) * 100));
+      item.innerHTML =
+        '<div class="need-head"><span>' + PILLAR_NAME[p] + ' +' + target + '</span>' +
+        '<span class="need-count">' + Math.min(got, target) + '/' + target + '</span></div>' +
+        '<div class="mini-bar"><span style="width:' + pct + '%"></span></div>';
+      list.appendChild(item);
+    });
+    sec.appendChild(list);
+    var msg = el('p', 'need-msg' + (allMet ? ' ready' : ''),
+      allMet ? '✦ Requirement met — you have levelled up.' : 'Raise your weakest required pillars through consistent practice.');
+    sec.appendChild(msg);
+    return sec;
+  }
+
+  /* --- weekly tracker -------------------------------------------------- */
+  function renderTracker() {
+    var sec = el('section', 'card');
+    var head = el('div', 'tracker-head');
+    head.innerHTML =
+      '<div><h2 class="sec-title">Weekly Tracker</h2>' +
+      '<p class="sec-sub">Mark each practice the day you complete it. Tier One is your passive base; the rest is your archetype\'s active XP.</p></div>';
+    var nav = el('div', 'week-nav');
+    nav.innerHTML =
+      '<button class="ghost-btn" id="prevWeek">‹</button>' +
+      '<span class="week-label">Week ' + (state.week + 1) + '</span>' +
+      '<button class="ghost-btn" id="nextWeek">›</button>';
+    head.appendChild(nav);
+    sec.appendChild(head);
+
+    sec.appendChild(buildTable('Tier One — Base Stats', TIER_ONE));
+    sec.appendChild(buildTable(arch().name + ' — XP Sources', arch().sources));
+
+    // weekly tally
+    var we = weekEarned(state.week);
+    var tally = el('div', 'tally');
+    tally.innerHTML =
+      '<div class="tally-cell"><span>Spiritual</span><b>+' + we.sp + '</b></div>' +
+      '<div class="tally-cell"><span>Physical</span><b>+' + we.ph + '</b></div>' +
+      '<div class="tally-cell"><span>Mental</span><b>+' + we.mn + '</b></div>' +
+      '<div class="tally-cell total"><span>Total XP</span><b>+' + (we.sp + we.ph + we.mn) + '</b></div>';
+    sec.appendChild(el('h3', 'mini-title', 'XP earned this week'));
+    sec.appendChild(tally);
+
+    sec.appendChild(buildScoreTable(state.week, we));
+
+    sec.querySelector('#prevWeek').addEventListener('click', function () {
+      if (state.week > 0) { state.week--; save(); render(); }
+    });
+    sec.querySelector('#nextWeek').addEventListener('click', function () {
+      state.week++; weekData(state.week); save(); render();
+    });
+    return sec;
+  }
+
+  function buildTable(title, sources) {
+    var wrap = el('div', 'table-wrap');
+    wrap.appendChild(el('h3', 'mini-title', title));
+    var table = el('table', 'tracker');
+    var thead = '<thead><tr><th class="src-col">Practice</th>';
+    DAYS.forEach(function (d) { thead += '<th>' + d + '</th>'; });
+    thead += '<th class="pts-col">Pts</th></tr></thead>';
+    table.innerHTML = thead;
+    var tbody = el('tbody');
+
+    sources.forEach(function (src) {
+      var tr = el('tr');
+      var label = '<div class="src-label">' + src.label + '</div>';
+      if (src.detail) label += '<div class="src-detail">' + src.detail + '</div>';
+      if (src.freq !== 'daily') {
+        label += '<div class="src-freq">' + (src.freq === 'weekly' ? 'weekly' : 'one-off') + '</div>';
+      }
+      var td = el('td', 'src-col'); td.innerHTML = label; tr.appendChild(td);
+
+      if (src.freq === 'daily') {
+        var arr = getToggle(state.week, src);
+        for (var d = 0; d < 7; d++) {
+          tr.appendChild(dayCell(src, arr, d));
+        }
+      } else {
+        var done = getToggle(state.week, src);
+        var cell = el('td', 'wk-cell');
+        cell.colSpan = 7;
+        var btn = el('button', 'wk-btn' + (done ? ' on' : ''), done ? '✓ Done this week' : 'Mark done');
+        btn.addEventListener('click', function () {
+          var wd = weekData(state.week);
+          wd[src.id] = !wd[src.id];
+          save(); render();
+        });
+        cell.appendChild(btn);
+        tr.appendChild(cell);
+      }
+
+      tr.appendChild(el('td', 'pts-col', ptsLabel(src.pts)));
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  function dayCell(src, arr, d) {
+    var td = el('td', 'day-cell');
+    var b = el('button', 'dot' + (arr[d] ? ' on' : ''));
+    b.setAttribute('aria-label', src.label + ' ' + DAYS[d]);
+    b.addEventListener('click', function () {
+      arr[d] = !arr[d];
+      save();
+      b.classList.toggle('on', arr[d]);
+      // refresh derived numbers without full nav reset
+      refreshDerived();
+    });
+    td.appendChild(b);
+    return td;
+  }
+
+  // Self Scale score table — log your pillar scores at the start & end of a week.
+  function buildScoreTable(w, we) {
+    var svd = weekScores(w);
+    var wrap = el('div', 'table-wrap');
+    wrap.appendChild(el('h3', 'mini-title', 'Self Scale score'));
+
+    var table = el('table', 'score-table');
+    table.innerHTML =
+      '<thead><tr><th></th><th>Spiritual</th><th>Physical</th><th>Mental</th><th>Total XP</th></tr></thead>';
+    var tbody = el('tbody');
+
+    // row 1: XP earned this week (auto)
+    var r1 = el('tr', 'score-auto');
+    r1.innerHTML =
+      '<td class="score-label">XP earned this week</td>' +
+      '<td>+' + we.sp + '</td><td>+' + we.ph + '</td><td>+' + we.mn + '</td>' +
+      '<td class="score-total">+' + (we.sp + we.ph + we.mn) + '</td>';
+    tbody.appendChild(r1);
+
+    // rows 2 & 3: editable start / end
+    tbody.appendChild(scoreInputRow('Self Scale score (start)', svd.start));
+    tbody.appendChild(scoreInputRow('Self Scale score (end)', svd.end));
+
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    wrap.appendChild(el('p', 'score-hint', 'Record your three pillar scores at the start and end of each week to watch your stats move over time.'));
+    return wrap;
+  }
+
+  function scoreInputRow(label, store) {
+    var tr = el('tr');
+    tr.appendChild(el('td', 'score-label', label));
+    PILLARS.forEach(function (p) {
+      var td = el('td');
+      var inp = document.createElement('input');
+      inp.type = 'number';
+      inp.min = 0; inp.max = MAX_SCORE;
+      inp.className = 'score-input';
+      inp.value = (store[p.key] === 0 || store[p.key]) ? store[p.key] : '';
+      inp.addEventListener('input', function () {
+        var v = inp.value === '' ? '' : Math.max(0, Math.min(MAX_SCORE, parseInt(inp.value, 10) || 0));
+        store[p.key] = v;
+        save();
+        updateScoreTotal(tr, store);
+      });
+      td.appendChild(inp);
+      tr.appendChild(td);
+    });
+    var totalTd = el('td', 'score-total', scoreSum(store));
+    tr.appendChild(totalTd);
+    return tr;
+  }
+
+  function scoreSum(store) {
+    var any = false, sum = 0;
+    PILLARS.forEach(function (p) {
+      if (store[p.key] === 0 || store[p.key]) { any = true; sum += Number(store[p.key]); }
+    });
+    return any ? String(sum) : '—';
+  }
+
+  function updateScoreTotal(tr, store) {
+    var cell = tr.querySelector('.score-total');
+    if (cell) cell.textContent = scoreSum(store);
+  }
+
+  // Light refresh of scores/tally/unlocks after a dot toggle (no scroll jump).
+  function refreshDerived() {
+    var sc = scores();
+    PILLARS.forEach(function (p) {
+      var pill = root.querySelector('.pillar-' + p.key);
+      if (!pill) return;
+      pill.querySelector('.pillar-val').textContent = sc[p.key];
+      pill.querySelector('.pillar-bar span').style.width = sc[p.key] + '%';
+      var e = sc.earned[p.key];
+      pill.querySelector('.pillar-earned').textContent = e > 0 ? '+' + e + ' earned' : 'no XP yet';
+    });
+    // simplest correct path for the rest:
+    var openWeek = state.week;
+    // re-render tally + need + unlocks by full render is heavy; do targeted updates
+    var we = weekEarned(openWeek);
+    var cells = root.querySelectorAll('.tally .tally-cell b');
+    if (cells.length === 4) {
+      cells[0].textContent = '+' + we.sp;
+      cells[1].textContent = '+' + we.ph;
+      cells[2].textContent = '+' + we.mn;
+      cells[3].textContent = '+' + (we.sp + we.ph + we.mn);
+    }
+    updateNeed(sc);
+    updateUnlocks(sc);
+  }
+
+  function updateNeed(sc) {
+    var need = arch().need;
+    var items = root.querySelectorAll('.need-item');
+    var keys = Object.keys(need);
+    var allMet = true;
+    items.forEach(function (item, i) {
+      var p = keys[i];
+      var target = need[p];
+      var got = sc.earned[p];
+      var done = got >= target;
+      if (!done) allMet = false;
+      item.classList.toggle('met', done);
+      item.querySelector('.need-count').textContent = Math.min(got, target) + '/' + target;
+      item.querySelector('.mini-bar span').style.width = Math.min(100, Math.round(got / target * 100)) + '%';
+    });
+    var msg = root.querySelector('.need-msg');
+    if (msg) {
+      msg.classList.toggle('ready', allMet);
+      msg.textContent = allMet ? '✦ Requirement met — you have levelled up.' : 'Raise your weakest required pillars through consistent practice.';
+    }
+  }
+
+  /* --- week one missions ---------------------------------------------- */
+  function renderMissions() {
+    var sec = el('section', 'card');
+    sec.appendChild(el('h2', 'sec-title', 'Week One Missions'));
+    sec.appendChild(el('p', 'sec-sub', 'Onboarding quests. Complete all three in your first seven days to build momentum. Each pays a one-time XP bonus.'));
+    var list = el('div', 'mission-list');
+    arch().missions.forEach(function (m) {
+      var done = !!state.missions[m.id];
+      var item = el('button', 'mission' + (done ? ' done' : ''));
+      item.innerHTML =
+        '<span class="check">' + (done ? '✓' : '') + '</span>' +
+        '<span class="mission-label">' + m.label + '</span>' +
+        '<span class="mission-xp">' + m.note + '</span>';
+      item.addEventListener('click', function () {
+        state.missions[m.id] = !state.missions[m.id];
+        save(); render();
+      });
+      list.appendChild(item);
+    });
+    sec.appendChild(list);
+    return sec;
+  }
+
+  /* --- unlock upgrades ------------------------------------------------- */
+  function renderUnlocks() {
+    var sc = scores();
+    var sec = el('section', 'card');
+    sec.appendChild(el('h2', 'sec-title', 'Unlock Upgrades'));
+    sec.appendChild(el('p', 'sec-sub', 'Not rewards — the natural result of the stat changes. The upgrade names the change.'));
+    var grid = el('div', 'unlock-grid');
+    arch().unlocks.forEach(function (u) {
+      var met = condMet(u.cond, sc);
+      var c = el('div', 'unlock' + (met ? ' unlocked' : ''));
+      c.innerHTML =
+        '<div class="unlock-status">' + (met ? '✦ UNLOCKED' : '🔒 LOCKED') + '</div>' +
+        '<div class="unlock-name">' + u.label + '</div>' +
+        '<div class="unlock-cond">' + condText(u.cond) + '</div>';
+      grid.appendChild(c);
+    });
+    sec.appendChild(grid);
+    return sec;
+  }
+
+  function updateUnlocks(sc) {
+    var cards = root.querySelectorAll('.unlock');
+    arch().unlocks.forEach(function (u, i) {
+      var met = condMet(u.cond, sc);
+      var card = cards[i];
+      if (!card) return;
+      card.classList.toggle('unlocked', met);
+      card.querySelector('.unlock-status').textContent = met ? '✦ UNLOCKED' : '🔒 LOCKED';
+    });
+  }
+
+  function condText(cond) {
+    if (cond.all != null) return 'All three pillars ' + cond.all + '+';
+    return Object.keys(cond).map(function (p) {
+      return PILLAR_NAME[p] + ' ' + cond[p];
+    }).join(' + ');
+  }
+
+  /* --- guidance / mission notes --------------------------------------- */
+  function renderGuidance() {
+    var sec = el('section', 'card note-card');
+    sec.appendChild(el('h2', 'sec-title', 'Mission Notes'));
+    sec.appendChild(el('p', 'note-body', arch().note));
+    sec.appendChild(el('h3', 'mini-title', 'How the XP system works'));
+    var ul = el('ul', 'note-list');
+    [
+      'Tier One — Sleep, Movement, Breathwork — is active every day. It is your passive XP income; without it, archetype XP does not compound.',
+      'Your archetype\'s sources are active income. The more consistently they run, the faster your stats move.',
+      'Raise your weakest required pillar to its target to level up. The upgrade names the change in you — not the number.',
+      'This is not a game you win once. The practices are permanent. The levels keep going.',
+    ].forEach(function (t) { ul.appendChild(el('li', null, t)); });
+    sec.appendChild(ul);
+    return sec;
+  }
+
+  /* --- footer ---------------------------------------------------------- */
+  function renderFooter() {
+    var f = el('footer', 'foot');
+    f.innerHTML =
+      '<p>The Root Map is the expansion to The Self Scale.</p>' +
+      '<p><a href="https://therootcheck.netlify.app" target="_blank" rel="noopener">therootcheck.netlify.app</a> · Free diagnostic · The Root Work</p>';
+    var tools = el('div', 'foot-tools');
+
+    var exportBtn = el('button', 'foot-btn', 'Export progress');
+    exportBtn.addEventListener('click', exportProgress);
+
+    var importBtn = el('button', 'foot-btn', 'Import progress');
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'application/json,.json';
+    fileInput.style.display = 'none';
+    fileInput.addEventListener('change', function () {
+      if (fileInput.files && fileInput.files[0]) importProgress(fileInput.files[0]);
+      fileInput.value = '';
+    });
+    importBtn.addEventListener('click', function () { fileInput.click(); });
+
+    var reset = el('button', 'foot-btn danger', 'Reset all progress');
+    reset.addEventListener('click', function () {
+      if (confirm('Erase all stats, history and missions? This cannot be undone.')) {
+        state = blankState();
+        save();
+        render();
+      }
+    });
+
+    tools.appendChild(exportBtn);
+    tools.appendChild(importBtn);
+    tools.appendChild(reset);
+    tools.appendChild(fileInput);
+    f.appendChild(tools);
+    return f;
+  }
+
+  /* --- export / import ------------------------------------------------- */
+  function exportProgress() {
+    var payload = JSON.stringify({ app: 'rootmap', version: 1, state: state }, null, 2);
+    var blob = new Blob([payload], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = 'root-map-progress-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+  }
+
+  function importProgress(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        var incoming = data && data.state ? data.state : data; // accept raw state too
+        if (!incoming || typeof incoming !== 'object' || !('baseline' in incoming)) {
+          throw new Error('Unrecognised file');
+        }
+        if (!confirm('Replace your current progress with the imported file? This overwrites what is on this device.')) return;
+        state = Object.assign(blankState(), incoming);
+        save();
+        render();
+      } catch (e) {
+        alert('Could not import that file — it does not look like a Root Map export.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ------------------------------------------------------------- launch */
+  render();
+})();
+
+  </script>
+</body>
+</html>
