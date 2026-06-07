@@ -16,6 +16,7 @@
       week: 0,
       weeks: {},        // { weekIndex: { sourceId: [bool x7] | bool } }
       missions: {},     // { missionId: bool }   one-time onboarding bonuses
+      scores: {},       // { weekIndex: { start:{sp,ph,mn}, end:{sp,ph,mn} } }
     };
   }
 
@@ -43,6 +44,13 @@
   function weekData(w) {
     if (!state.weeks[w]) state.weeks[w] = {};
     return state.weeks[w];
+  }
+
+  function weekScores(w) {
+    if (!state.scores[w]) {
+      state.scores[w] = { start: { sp: '', ph: '', mn: '' }, end: { sp: '', ph: '', mn: '' } };
+    }
+    return state.scores[w];
   }
 
   function getToggle(w, src) {
@@ -272,6 +280,8 @@
     sec.appendChild(el('h3', 'mini-title', 'XP earned this week'));
     sec.appendChild(tally);
 
+    sec.appendChild(buildScoreTable(state.week, we));
+
     sec.querySelector('#prevWeek').addEventListener('click', function () {
       if (state.week > 0) { state.week--; save(); render(); }
     });
@@ -340,6 +350,72 @@
     });
     td.appendChild(b);
     return td;
+  }
+
+  // Self Scale score table — log your pillar scores at the start & end of a week.
+  function buildScoreTable(w, we) {
+    var svd = weekScores(w);
+    var wrap = el('div', 'table-wrap');
+    wrap.appendChild(el('h3', 'mini-title', 'Self Scale score'));
+
+    var table = el('table', 'score-table');
+    table.innerHTML =
+      '<thead><tr><th></th><th>Spiritual</th><th>Physical</th><th>Mental</th><th>Total XP</th></tr></thead>';
+    var tbody = el('tbody');
+
+    // row 1: XP earned this week (auto)
+    var r1 = el('tr', 'score-auto');
+    r1.innerHTML =
+      '<td class="score-label">XP earned this week</td>' +
+      '<td>+' + we.sp + '</td><td>+' + we.ph + '</td><td>+' + we.mn + '</td>' +
+      '<td class="score-total">+' + (we.sp + we.ph + we.mn) + '</td>';
+    tbody.appendChild(r1);
+
+    // rows 2 & 3: editable start / end
+    tbody.appendChild(scoreInputRow('Self Scale score (start)', svd.start));
+    tbody.appendChild(scoreInputRow('Self Scale score (end)', svd.end));
+
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    wrap.appendChild(el('p', 'score-hint', 'Record your three pillar scores at the start and end of each week to watch your stats move over time.'));
+    return wrap;
+  }
+
+  function scoreInputRow(label, store) {
+    var tr = el('tr');
+    tr.appendChild(el('td', 'score-label', label));
+    PILLARS.forEach(function (p) {
+      var td = el('td');
+      var inp = document.createElement('input');
+      inp.type = 'number';
+      inp.min = 0; inp.max = MAX_SCORE;
+      inp.className = 'score-input';
+      inp.value = (store[p.key] === 0 || store[p.key]) ? store[p.key] : '';
+      inp.addEventListener('input', function () {
+        var v = inp.value === '' ? '' : Math.max(0, Math.min(MAX_SCORE, parseInt(inp.value, 10) || 0));
+        store[p.key] = v;
+        save();
+        updateScoreTotal(tr, store);
+      });
+      td.appendChild(inp);
+      tr.appendChild(td);
+    });
+    var totalTd = el('td', 'score-total', scoreSum(store));
+    tr.appendChild(totalTd);
+    return tr;
+  }
+
+  function scoreSum(store) {
+    var any = false, sum = 0;
+    PILLARS.forEach(function (p) {
+      if (store[p.key] === 0 || store[p.key]) { any = true; sum += Number(store[p.key]); }
+    });
+    return any ? String(sum) : '—';
+  }
+
+  function updateScoreTotal(tr, store) {
+    var cell = tr.querySelector('.score-total');
+    if (cell) cell.textContent = scoreSum(store);
   }
 
   // Light refresh of scores/tally/unlocks after a dot toggle (no scroll jump).
@@ -474,7 +550,23 @@
     f.innerHTML =
       '<p>The Root Map is the expansion to The Self Scale.</p>' +
       '<p><a href="https://therootcheck.netlify.app" target="_blank" rel="noopener">therootcheck.netlify.app</a> · Free diagnostic · The Root Work</p>';
-    var reset = el('button', 'reset-btn', 'Reset all progress');
+    var tools = el('div', 'foot-tools');
+
+    var exportBtn = el('button', 'foot-btn', 'Export progress');
+    exportBtn.addEventListener('click', exportProgress);
+
+    var importBtn = el('button', 'foot-btn', 'Import progress');
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'application/json,.json';
+    fileInput.style.display = 'none';
+    fileInput.addEventListener('change', function () {
+      if (fileInput.files && fileInput.files[0]) importProgress(fileInput.files[0]);
+      fileInput.value = '';
+    });
+    importBtn.addEventListener('click', function () { fileInput.click(); });
+
+    var reset = el('button', 'foot-btn danger', 'Reset all progress');
     reset.addEventListener('click', function () {
       if (confirm('Erase all stats, history and missions? This cannot be undone.')) {
         state = blankState();
@@ -482,8 +574,48 @@
         render();
       }
     });
-    f.appendChild(reset);
+
+    tools.appendChild(exportBtn);
+    tools.appendChild(importBtn);
+    tools.appendChild(reset);
+    tools.appendChild(fileInput);
+    f.appendChild(tools);
     return f;
+  }
+
+  /* --- export / import ------------------------------------------------- */
+  function exportProgress() {
+    var payload = JSON.stringify({ app: 'rootmap', version: 1, state: state }, null, 2);
+    var blob = new Blob([payload], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = 'root-map-progress-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+  }
+
+  function importProgress(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        var incoming = data && data.state ? data.state : data; // accept raw state too
+        if (!incoming || typeof incoming !== 'object' || !('baseline' in incoming)) {
+          throw new Error('Unrecognised file');
+        }
+        if (!confirm('Replace your current progress with the imported file? This overwrites what is on this device.')) return;
+        state = Object.assign(blankState(), incoming);
+        save();
+        render();
+      } catch (e) {
+        alert('Could not import that file — it does not look like a Root Map export.');
+      }
+    };
+    reader.readAsText(file);
   }
 
   /* ------------------------------------------------------------- launch */

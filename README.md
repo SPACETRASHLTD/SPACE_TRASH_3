@@ -19,7 +19,11 @@ playable self-development game you can run from any browser.
 - **Week One Missions** — onboarding quests with one-time XP bonuses.
 - **Unlock Upgrades** — light up automatically when your stats cross the
   archetype's thresholds.
+- **Self Scale score table** — log your start- and end-of-week pillar scores
+  (alongside the auto-calculated XP earned) to watch your stats move over time.
 - **Multi-week history** — navigate weeks; XP compounds across all of them.
+- **Export / import** — download your whole progress as a JSON file and re-import
+  it on another device.
 - Everything saves to **localStorage** — no account, no backend.
 
 ## Run it
