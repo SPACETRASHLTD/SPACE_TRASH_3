@@ -11,7 +11,21 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <main id="app"></main>
+  <main id="app">
+    <div class="boot-fallback">
+      <p class="boot-title">The Root Map</p>
+      <p>Loading…</p>
+      <p class="boot-hint">If this screen stays still, this page needs to be opened in a web browser
+      (Chrome, Safari, Edge, Firefox) with JavaScript enabled — a file preview can't run it.
+      Save the file and open it in your browser.</p>
+    </div>
+    <noscript>
+      <div class="boot-fallback">
+        <p class="boot-title">The Root Map</p>
+        <p>This app needs JavaScript to run. Please open it in a web browser with JavaScript enabled.</p>
+      </div>
+    </noscript>
+  </main>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
 </body>
