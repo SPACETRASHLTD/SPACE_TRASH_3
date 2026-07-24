@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Track Your Application — OnlineVisaStore</title>
+<meta name="description" content="Check the status of your visa application using your reference number and email.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.html" class="brand">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="#D9B94A" stroke-width="1.6"/>
+        <path d="M2 12H22M12 2C14.5 4.7 15.8 8.2 15.8 12C15.8 15.8 14.5 19.3 12 22C9.5 19.3 8.2 15.8 8.2 12C8.2 8.2 9.5 4.7 12 2Z" stroke="#D9B94A" stroke-width="1.2"/>
+      </svg>
+      Online<span class="brand-accent">VisaStore</span>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="countries.html">Countries &amp; Pricing</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="status.html" aria-current="page">Track Application</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="status.html" class="btn btn-outline btn-sm">Track Application</a>
+      <a href="apply.html" class="btn btn-primary btn-sm">Apply Now</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Track Your Application</h1>
+    <p>Enter your reference number and the email you used to apply.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:640px;">
+    <div class="card">
+      <form id="trackForm" novalidate>
+        <div class="alert alert-error" id="trackError">We couldn't find an application matching that reference number and email. Double-check for typos and try again.</div>
+        <div class="field">
+          <label for="refInput">Reference number <span class="req">*</span></label>
+          <input type="text" id="refInput" placeholder="e.g. VS-7QK2LMN" required>
+          <div class="field-error">Please enter your reference number.</div>
+        </div>
+        <div class="field">
+          <label for="emailInput">Email address <span class="req">*</span></label>
+          <input type="email" id="emailInput" placeholder="you@example.com" required>
+          <div class="field-error">Please enter the email used on your application.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Check Status</button>
+      </form>
+    </div>
+
+    <div class="card status-result" id="statusResult">
+      <h3 id="resultTitle">Application VS-XXXXXXX</h3>
+      <p id="resultSubtitle" class="field-hint"></p>
+
+      <div class="status-track" id="statusTrack">
+        <div class="status-node" data-stage="0">
+          <div class="dot">1</div>
+          <div>Submitted</div>
+        </div>
+        <div class="status-node" data-stage="1">
+          <div class="dot">2</div>
+          <div>Document Review</div>
+        </div>
+        <div class="status-node" data-stage="2">
+          <div class="dot">3</div>
+          <div>Processing</div>
+        </div>
+        <div class="status-node" data-stage="3">
+          <div class="dot">4</div>
+          <div>Approved</div>
+        </div>
+      </div>
+
+      <dl>
+        <div class="summary-row"><dt>Destination</dt><dd id="resCountry"></dd></div>
+        <div class="summary-row"><dt>Visa type</dt><dd id="resType"></dd></div>
+        <div class="summary-row"><dt>Travel date</dt><dd id="resDate"></dd></div>
+        <div class="summary-row"><dt>Applicant</dt><dd id="resName"></dd></div>
+        <div class="summary-row"><dt>Submitted</dt><dd id="resSubmitted"></dd></div>
+      </dl>
+    </div>
+
+    <p class="field-hint text-center" style="margin-top:24px;">
+      Don't have an application yet? <a href="apply.html">Start one now</a>.
+    </p>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <span>&copy; <span data-year></span> OnlineVisaStore. All rights reserved.</span>
+      <span><a href="privacy.html" style="color:inherit;">Privacy</a> &middot; <a href="terms.html" style="color:inherit;">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/status.js"></script>
+</body>
+</html>

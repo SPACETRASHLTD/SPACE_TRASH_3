@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Countries &amp; Pricing — OnlineVisaStore</title>
+<meta name="description" content="Browse supported destinations, visa types, processing times and pricing.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.html" class="brand">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="#D9B94A" stroke-width="1.6"/>
+        <path d="M2 12H22M12 2C14.5 4.7 15.8 8.2 15.8 12C15.8 15.8 14.5 19.3 12 22C9.5 19.3 8.2 15.8 8.2 12C8.2 8.2 9.5 4.7 12 2Z" stroke="#D9B94A" stroke-width="1.2"/>
+      </svg>
+      Online<span class="brand-accent">VisaStore</span>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="countries.html" aria-current="page">Countries &amp; Pricing</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="status.html">Track Application</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="status.html" class="btn btn-outline btn-sm">Track Application</a>
+      <a href="apply.html" class="btn btn-primary btn-sm">Apply Now</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Countries &amp; Pricing</h1>
+    <p>Browse our supported destinations. Fees shown are our service fee and do not include official government visa fees, where charged separately.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="Search by country name...">
+      <select id="regionFilter">
+        <option value="">All regions</option>
+        <option value="Americas">Americas</option>
+        <option value="Europe">Europe</option>
+        <option value="Asia">Asia</option>
+        <option value="Oceania">Oceania</option>
+        <option value="Africa">Africa</option>
+        <option value="Middle East">Middle East</option>
+      </select>
+      <select id="speedFilter">
+        <option value="">Any processing time</option>
+        <option value="fast">Fast (under 72 hours)</option>
+        <option value="standard">Standard (3+ days)</option>
+      </select>
+    </div>
+
+    <table class="pricing-table" id="countryTable">
+      <thead>
+        <tr>
+          <th>Destination</th>
+          <th>Region</th>
+          <th>Visa type</th>
+          <th>Processing time</th>
+          <th>Service fee</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-region="Americas" data-speed="fast" data-name="united states">
+          <td>🇺🇸 United States (ESTA)</td>
+          <td>Americas</td>
+          <td>Tourist / Business</td>
+          <td><span class="badge badge-fast">72 hours</span></td>
+          <td>$59</td>
+          <td><a href="apply.html?country=us" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Americas" data-speed="fast" data-name="canada">
+          <td>🇨🇦 Canada (eTA)</td>
+          <td>Americas</td>
+          <td>Tourist / Transit</td>
+          <td><span class="badge badge-fast">1-3 days</span></td>
+          <td>$49</td>
+          <td><a href="apply.html?country=ca" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Europe" data-speed="standard" data-name="united kingdom">
+          <td>🇬🇧 United Kingdom</td>
+          <td>Europe</td>
+          <td>Tourist / Business</td>
+          <td><span class="badge badge-standard">5-7 days</span></td>
+          <td>$89</td>
+          <td><a href="apply.html?country=uk" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Europe" data-speed="standard" data-name="schengen europe">
+          <td>🇪🇺 Schengen Area</td>
+          <td>Europe</td>
+          <td>Tourist / Business</td>
+          <td><span class="badge badge-standard">10-15 days</span></td>
+          <td>$99</td>
+          <td><a href="apply.html?country=eu" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Europe" data-speed="fast" data-name="turkey">
+          <td>🇹🇷 Turkey</td>
+          <td>Europe</td>
+          <td>Tourist / Business</td>
+          <td><span class="badge badge-fast">24-48 hours</span></td>
+          <td>$39</td>
+          <td><a href="apply.html?country=tr" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Oceania" data-speed="fast" data-name="australia">
+          <td>🇦🇺 Australia (ETA)</td>
+          <td>Oceania</td>
+          <td>Tourist / Business</td>
+          <td><span class="badge badge-fast">48 hours</span></td>
+          <td>$49</td>
+          <td><a href="apply.html?country=au" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Oceania" data-speed="standard" data-name="new zealand">
+          <td>🇳🇿 New Zealand (NZeTA)</td>
+          <td>Oceania</td>
+          <td>Tourist / Transit</td>
+          <td><span class="badge badge-standard">3-5 days</span></td>
+          <td>$45</td>
+          <td><a href="apply.html?country=nz" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Asia" data-speed="standard" data-name="vietnam">
+          <td>🇻🇳 Vietnam</td>
+          <td>Asia</td>
+          <td>Tourist / Business</td>
+          <td><span class="badge badge-standard">3-5 days</span></td>
+          <td>$45</td>
+          <td><a href="apply.html?country=vn" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Asia" data-speed="fast" data-name="india">
+          <td>🇮🇳 India (e-Visa)</td>
+          <td>Asia</td>
+          <td>Tourist / Business</td>
+          <td><span class="badge badge-fast">2-4 days</span></td>
+          <td>$55</td>
+          <td><a href="apply.html?country=in" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Asia" data-speed="standard" data-name="sri lanka">
+          <td>🇱🇰 Sri Lanka (ETA)</td>
+          <td>Asia</td>
+          <td>Tourist</td>
+          <td><span class="badge badge-fast">24-72 hours</span></td>
+          <td>$35</td>
+          <td><a href="apply.html?country=lk" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Middle East" data-speed="fast" data-name="united arab emirates dubai">
+          <td>🇦🇪 United Arab Emirates</td>
+          <td>Middle East</td>
+          <td>Tourist / Business</td>
+          <td><span class="badge badge-fast">2-3 days</span></td>
+          <td>$65</td>
+          <td><a href="apply.html?country=ae" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Africa" data-speed="standard" data-name="egypt">
+          <td>🇪🇬 Egypt (e-Visa)</td>
+          <td>Africa</td>
+          <td>Tourist</td>
+          <td><span class="badge badge-fast">3-5 days</span></td>
+          <td>$45</td>
+          <td><a href="apply.html?country=eg" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+        <tr data-region="Africa" data-speed="standard" data-name="kenya">
+          <td>🇰🇪 Kenya (eTA)</td>
+          <td>Africa</td>
+          <td>Tourist / Business</td>
+          <td><span class="badge badge-standard">3-7 days</span></td>
+          <td>$55</td>
+          <td><a href="apply.html?country=ke" class="btn btn-outline btn-sm">Apply</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <p id="noResults" style="display:none;margin-top:20px;text-align:center;">No destinations match your filters. Try clearing the search.</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container text-center">
+    <h2>Don't see your destination?</h2>
+    <p>We add new destinations regularly. <a href="contact.html">Contact our team</a> and we'll let you know if we can help.</p>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <span>&copy; <span data-year></span> OnlineVisaStore. All rights reserved.</span>
+      <span><a href="privacy.html" style="color:inherit;">Privacy</a> &middot; <a href="terms.html" style="color:inherit;">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+  const searchInput = document.getElementById("searchInput");
+  const regionFilter = document.getElementById("regionFilter");
+  const speedFilter = document.getElementById("speedFilter");
+  const rows = Array.from(document.querySelectorAll("#countryTable tbody tr"));
+  const noResults = document.getElementById("noResults");
+
+  function applyFilters() {
+    const q = searchInput.value.trim().toLowerCase();
+    const region = regionFilter.value;
+    const speed = speedFilter.value;
+    let visible = 0;
+
+    rows.forEach((row) => {
+      const matchesQ = !q || row.dataset.name.includes(q);
+      const matchesRegion = !region || row.dataset.region === region;
+      const matchesSpeed = !speed || row.dataset.speed === speed;
+      const show = matchesQ && matchesRegion && matchesSpeed;
+      row.style.display = show ? "" : "none";
+      if (show) visible++;
+    });
+
+    noResults.style.display = visible === 0 ? "block" : "none";
+  }
+
+  [searchInput, regionFilter, speedFilter].forEach((el) =>
+    el.addEventListener("input", applyFilters)
+  );
+</script>
+</body>
+</html>

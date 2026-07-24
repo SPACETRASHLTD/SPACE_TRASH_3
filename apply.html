@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Apply for a Visa — OnlineVisaStore</title>
+<meta name="description" content="Complete your visa application online in a few guided steps.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.html" class="brand">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="#D9B94A" stroke-width="1.6"/>
+        <path d="M2 12H22M12 2C14.5 4.7 15.8 8.2 15.8 12C15.8 15.8 14.5 19.3 12 22C9.5 19.3 8.2 15.8 8.2 12C8.2 8.2 9.5 4.7 12 2Z" stroke="#D9B94A" stroke-width="1.2"/>
+      </svg>
+      Online<span class="brand-accent">VisaStore</span>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="countries.html">Countries &amp; Pricing</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="status.html">Track Application</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="status.html" class="btn btn-outline btn-sm">Track Application</a>
+      <a href="apply.html" class="btn btn-primary btn-sm" aria-current="page">Apply Now</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Visa Application</h1>
+    <p>Complete the steps below. Your progress is saved in this browser, so you can leave and come back before submitting.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:780px;">
+
+    <div class="alert alert-info show" id="demoNotice">
+      This is a demonstration application form. No real payment is processed and documents are not uploaded to a server — everything stays in your browser.
+    </div>
+
+    <div class="wizard-shell">
+      <div class="wizard-tracker">
+        <div class="tstep active" data-step="1"><span class="dot">1</span><span>Destination</span></div>
+        <div class="tsep"></div>
+        <div class="tstep" data-step="2"><span class="dot">2</span><span>Traveler</span></div>
+        <div class="tsep"></div>
+        <div class="tstep" data-step="3"><span class="dot">3</span><span>Documents</span></div>
+        <div class="tsep"></div>
+        <div class="tstep" data-step="4"><span class="dot">4</span><span>Review</span></div>
+        <div class="tsep"></div>
+        <div class="tstep" data-step="5"><span class="dot">5</span><span>Done</span></div>
+      </div>
+
+      <form id="visaForm" novalidate>
+        <div class="wizard-body">
+
+          <!-- Step 1: Destination -->
+          <div class="wizard-panel active" data-panel="1">
+            <h3>Destination &amp; visa type</h3>
+            <div class="field-row">
+              <div class="field">
+                <label for="country">Destination country <span class="req">*</span></label>
+                <select id="country" required>
+                  <option value="">Select a country</option>
+                  <option value="us">United States (ESTA)</option>
+                  <option value="ca">Canada (eTA)</option>
+                  <option value="uk">United Kingdom</option>
+                  <option value="eu">Schengen Area</option>
+                  <option value="tr">Turkey</option>
+                  <option value="au">Australia (ETA)</option>
+                  <option value="nz">New Zealand (NZeTA)</option>
+                  <option value="vn">Vietnam</option>
+                  <option value="in">India (e-Visa)</option>
+                  <option value="lk">Sri Lanka (ETA)</option>
+                  <option value="ae">United Arab Emirates</option>
+                  <option value="eg">Egypt (e-Visa)</option>
+                  <option value="ke">Kenya (eTA)</option>
+                </select>
+                <div class="field-error">Please select a destination.</div>
+              </div>
+              <div class="field">
+                <label for="visaType">Visa type <span class="req">*</span></label>
+                <select id="visaType" required>
+                  <option value="">Select visa type</option>
+                  <option value="tourist">Tourist</option>
+                  <option value="business">Business</option>
+                  <option value="transit">Transit</option>
+                </select>
+                <div class="field-error">Please select a visa type.</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="travelDate">Intended travel date <span class="req">*</span></label>
+                <input type="date" id="travelDate" required>
+                <div class="field-error">Please choose a future travel date.</div>
+              </div>
+              <div class="field">
+                <label for="applicants">Number of applicants</label>
+                <select id="applicants">
+                  <option value="1">1 (myself)</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5+</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Traveler details -->
+          <div class="wizard-panel" data-panel="2">
+            <h3>Traveler details</h3>
+            <div class="field-row">
+              <div class="field">
+                <label for="fullName">Full name (as on passport) <span class="req">*</span></label>
+                <input type="text" id="fullName" placeholder="e.g. Jane Marie Doe" required>
+                <div class="field-error">Please enter your full legal name.</div>
+              </div>
+              <div class="field">
+                <label for="dob">Date of birth <span class="req">*</span></label>
+                <input type="date" id="dob" required>
+                <div class="field-error">Please enter your date of birth.</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="nationality">Nationality <span class="req">*</span></label>
+                <input type="text" id="nationality" placeholder="e.g. Canadian" required>
+                <div class="field-error">Please enter your nationality.</div>
+              </div>
+              <div class="field">
+                <label for="passportNumber">Passport number <span class="req">*</span></label>
+                <input type="text" id="passportNumber" placeholder="e.g. X1234567" required>
+                <div class="field-error">Please enter your passport number.</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="passportExpiry">Passport expiry date <span class="req">*</span></label>
+                <input type="date" id="passportExpiry" required>
+                <div class="field-error">Passport must be valid for at least 6 months from travel date.</div>
+              </div>
+              <div class="field">
+                <label for="phone">Phone number <span class="req">*</span></label>
+                <input type="tel" id="phone" placeholder="e.g. +1 555 123 4567" required>
+                <div class="field-error">Please enter a valid phone number.</div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="email">Email address <span class="req">*</span></label>
+              <input type="email" id="email" placeholder="you@example.com" required>
+              <div class="field-hint">We'll send your confirmation and status updates here. Save it — you'll need it to track your application.</div>
+              <div class="field-error">Please enter a valid email address.</div>
+            </div>
+          </div>
+
+          <!-- Step 3: Documents -->
+          <div class="wizard-panel" data-panel="3">
+            <h3>Upload documents</h3>
+            <p class="field-hint" style="margin-bottom:24px;">Accepted formats: JPG, PNG or PDF, under 10MB each. Files stay in your browser for this demo and are not uploaded anywhere.</p>
+
+            <div class="field">
+              <label>Passport bio page <span class="req">*</span></label>
+              <label class="file-drop" id="passportDrop" for="passportFile">
+                <div>Click to select your passport photo page</div>
+                <div class="file-name" id="passportFileName"></div>
+              </label>
+              <input type="file" id="passportFile" accept="image/*,application/pdf">
+              <div class="field-error" id="passportFileError">Please upload a scan of your passport bio page.</div>
+            </div>
+
+            <div class="field">
+              <label>Passport-style photo <span class="req">*</span></label>
+              <label class="file-drop" id="photoDrop" for="photoFile">
+                <div>Click to select a recent passport-style photo</div>
+                <div class="file-name" id="photoFileName"></div>
+              </label>
+              <input type="file" id="photoFile" accept="image/*">
+              <div class="field-error" id="photoFileError">Please upload a passport-style photo.</div>
+            </div>
+
+            <div class="checkbox-row">
+              <input type="checkbox" id="consentAccurate" required>
+              <label for="consentAccurate">I confirm the information and documents provided are accurate and belong to the applicant(s) listed. <span class="req">*</span></label>
+            </div>
+            <div class="field-error" id="consentError" style="margin-top:6px;">Please confirm this before continuing.</div>
+          </div>
+
+          <!-- Step 4: Review -->
+          <div class="wizard-panel" data-panel="4">
+            <h3>Review your application</h3>
+            <dl id="reviewSummary"></dl>
+            <div class="checkbox-row" style="margin-top:20px;">
+              <input type="checkbox" id="consentTerms" required>
+              <label for="consentTerms">I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>. <span class="req">*</span></label>
+            </div>
+            <div class="field-error" id="termsError" style="margin-top:6px;">You must agree to the terms to submit.</div>
+          </div>
+
+          <!-- Step 5: Confirmation -->
+          <div class="wizard-panel" data-panel="5">
+            <div class="confirm-box">
+              <div class="icon-badge" style="margin:0 auto 18px;background:var(--success-100);color:var(--success-500);">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 12L10 18L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <h3>Application received</h3>
+              <p>We've saved your application. Use this reference number with your email to track its status at any time.</p>
+              <div class="ref-code" id="refCode">VS-XXXXXXX</div>
+              <p class="field-hint">A confirmation would normally be emailed to you. In this demo, keep your reference number and email handy.</p>
+              <div class="hero-actions" style="justify-content:center;">
+                <a href="status.html" class="btn btn-primary" id="trackLink">Track This Application</a>
+                <a href="index.html" class="btn btn-outline">Back to Home</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="wizard-footer" id="wizardFooter">
+          <button type="button" class="btn btn-outline" id="prevBtn" disabled>Back</button>
+          <button type="button" class="btn btn-primary" id="nextBtn">Continue</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn" style="display:none;">Submit Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <span>&copy; <span data-year></span> OnlineVisaStore. All rights reserved.</span>
+      <span><a href="privacy.html" style="color:inherit;">Privacy</a> &middot; <a href="terms.html" style="color:inherit;">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/apply.js"></script>
+</body>
+</html>

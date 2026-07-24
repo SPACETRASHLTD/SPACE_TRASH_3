@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Contact Us — OnlineVisaStore</title>
+<meta name="description" content="Get in touch with the OnlineVisaStore support team.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.html" class="brand">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="#D9B94A" stroke-width="1.6"/>
+        <path d="M2 12H22M12 2C14.5 4.7 15.8 8.2 15.8 12C15.8 15.8 14.5 19.3 12 22C9.5 19.3 8.2 15.8 8.2 12C8.2 8.2 9.5 4.7 12 2Z" stroke="#D9B94A" stroke-width="1.2"/>
+      </svg>
+      Online<span class="brand-accent">VisaStore</span>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="countries.html">Countries &amp; Pricing</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="status.html">Track Application</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html" aria-current="page">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="status.html" class="btn btn-outline btn-sm">Track Application</a>
+      <a href="apply.html" class="btn btn-primary btn-sm">Apply Now</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>Contact Us</h1>
+    <p>Questions about an application, a destination, or something else? We're here to help.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container grid grid-2" style="align-items:flex-start;">
+    <div class="card">
+      <h3>Send us a message</h3>
+      <div class="alert alert-success" id="contactSuccess">Thanks — your message has been recorded. Our team will reply by email within one business day.</div>
+      <form id="contactForm" novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label for="cName">Full name <span class="req">*</span></label>
+            <input type="text" id="cName" required>
+            <div class="field-error">Please enter your name.</div>
+          </div>
+          <div class="field">
+            <label for="cEmail">Email address <span class="req">*</span></label>
+            <input type="email" id="cEmail" required>
+            <div class="field-error">Please enter a valid email address.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cRef">Application reference number (optional)</label>
+          <input type="text" id="cRef" placeholder="e.g. VS-7QK2LMN">
+        </div>
+        <div class="field">
+          <label for="cSubject">Subject <span class="req">*</span></label>
+          <select id="cSubject" required>
+            <option value="">Select a topic</option>
+            <option value="before">Question before applying</option>
+            <option value="status">Application status</option>
+            <option value="documents">Document requirements</option>
+            <option value="billing">Billing / payment</option>
+            <option value="other">Other</option>
+          </select>
+          <div class="field-error">Please choose a topic.</div>
+        </div>
+        <div class="field">
+          <label for="cMessage">Message <span class="req">*</span></label>
+          <textarea id="cMessage" required placeholder="How can we help?"></textarea>
+          <div class="field-error">Please enter a message.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+      </form>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:24px;">
+        <h3>Support</h3>
+        <p><strong>Email:</strong> support@onlinevisastore.com</p>
+        <p><strong>Phone:</strong> +1 (800) 555-0199</p>
+        <p><strong>Hours:</strong> Monday–Friday, 8am–8pm (GMT), Saturday 9am–3pm (GMT)</p>
+      </div>
+      <div class="card">
+        <h3>Before you write in</h3>
+        <p>Have your application reference number ready if your question relates to an existing application — it helps us answer faster. You can also check <a href="status.html">Track Application</a> or our <a href="faq.html">FAQ</a> for immediate answers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <span>&copy; <span data-year></span> OnlineVisaStore. All rights reserved.</span>
+      <span><a href="privacy.html" style="color:inherit;">Privacy</a> &middot; <a href="terms.html" style="color:inherit;">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+  const contactForm = document.getElementById("contactForm");
+  const contactSuccess = document.getElementById("contactSuccess");
+
+  contactForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let valid = true;
+    [["cName"], ["cEmail"], ["cSubject"], ["cMessage"]].forEach(([id]) => {
+      const el = document.getElementById(id);
+      let ok = el.value.trim() !== "";
+      if (id === "cEmail" && ok) ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+      el.closest(".field").classList.toggle("has-error", !ok);
+      if (!ok) valid = false;
+    });
+    if (!valid) return;
+
+    contactSuccess.classList.add("show");
+    contactForm.reset();
+    contactSuccess.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+</script>
+</body>
+</html>

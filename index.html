@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OnlineVisaStore — Apply for Your Travel Visa Online</title>
+<meta name="description" content="Apply for tourist, business and transit visas to 60+ destinations. Simple online application, document checklist and real-time status tracking.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a href="index.html" class="brand">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="#D9B94A" stroke-width="1.6"/>
+        <path d="M2 12H22M12 2C14.5 4.7 15.8 8.2 15.8 12C15.8 15.8 14.5 19.3 12 22C9.5 19.3 8.2 15.8 8.2 12C8.2 8.2 9.5 4.7 12 2Z" stroke="#D9B94A" stroke-width="1.2"/>
+      </svg>
+      Online<span class="brand-accent">VisaStore</span>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="countries.html">Countries &amp; Pricing</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="status.html">Track Application</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="status.html" class="btn btn-outline btn-sm">Track Application</a>
+      <a href="apply.html" class="btn btn-primary btn-sm">Apply Now</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Trusted online visa assistance</span>
+      <h1>Your travel visa, handled from start to finish.</h1>
+      <p class="lead">Answer a few questions, upload your documents, and let our specialists prepare and submit your visa application. Track every step online.</p>
+      <div class="hero-actions">
+        <a href="apply.html" class="btn btn-primary">Start Your Application</a>
+        <a href="how-it-works.html" class="btn btn-secondary">How It Works</a>
+      </div>
+      <div class="hero-trust">
+        <div>
+          <strong>60+</strong>
+          <span>Destinations covered</span>
+        </div>
+        <div>
+          <strong>240,000+</strong>
+          <span>Applications processed</span>
+        </div>
+        <div>
+          <strong>4.8/5</strong>
+          <span>Average customer rating</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-lookup-card">
+      <h3>Track your application</h3>
+      <p class="muted">Enter your reference number and email to check status.</p>
+      <form action="status.html" method="get" id="quickTrackForm">
+        <div class="field">
+          <label for="qtRef">Reference number</label>
+          <input type="text" id="qtRef" name="ref" placeholder="e.g. VS-7QK2LMN" required>
+        </div>
+        <div class="field">
+          <label for="qtEmail">Email address</label>
+          <input type="email" id="qtEmail" name="email" placeholder="you@example.com" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Check Status</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">How it works</span>
+      <h2>Four simple steps to your visa</h2>
+      <p>We guide you through every requirement so nothing gets missed.</p>
+    </div>
+    <div class="steps-row">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Choose your destination</h3>
+        <p>Select the country and visa type that matches your trip.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Complete the form</h3>
+        <p>Fill in your traveler details in our guided online application.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Upload documents</h3>
+        <p>Submit your passport scan and photo — we check them for you.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h3>Track &amp; receive</h3>
+        <p>Follow your application status and receive your visa by email.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Popular destinations</span>
+      <h2>Apply for these visas today</h2>
+      <p>A sample of the destinations we support. See the full list with pricing and processing times.</p>
+    </div>
+    <div class="grid grid-4">
+      <div class="card country-card">
+        <div class="flag">🇺🇸</div>
+        <h3>United States (ESTA)</h3>
+        <span class="badge badge-fast">72 hr processing</span>
+        <div class="price">$59 <span>service fee</span></div>
+        <a href="apply.html?country=us" class="btn btn-outline btn-sm">Apply</a>
+      </div>
+      <div class="card country-card">
+        <div class="flag">🇬🇧</div>
+        <h3>United Kingdom</h3>
+        <span class="badge badge-standard">5-7 day processing</span>
+        <div class="price">$89 <span>service fee</span></div>
+        <a href="apply.html?country=uk" class="btn btn-outline btn-sm">Apply</a>
+      </div>
+      <div class="card country-card">
+        <div class="flag">🇦🇺</div>
+        <h3>Australia (ETA)</h3>
+        <span class="badge badge-fast">48 hr processing</span>
+        <div class="price">$49 <span>service fee</span></div>
+        <a href="apply.html?country=au" class="btn btn-outline btn-sm">Apply</a>
+      </div>
+      <div class="card country-card">
+        <div class="flag">🇻🇳</div>
+        <h3>Vietnam</h3>
+        <span class="badge badge-standard">3-5 day processing</span>
+        <div class="price">$45 <span>service fee</span></div>
+        <a href="apply.html?country=vn" class="btn btn-outline btn-sm">Apply</a>
+      </div>
+    </div>
+    <div class="text-center" style="margin-top:36px;">
+      <a href="countries.html" class="btn btn-primary">View All Countries &amp; Pricing</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Why OnlineVisaStore</span>
+      <h2>Built for travelers who want it done right</h2>
+    </div>
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 5V11C4 16 7.4 20.4 12 22C16.6 20.4 20 16 20 11V5L12 2Z" stroke="currentColor" stroke-width="1.6"/></svg>
+        </div>
+        <h3>Document review</h3>
+        <p>Our specialists check your passport and documents before submission to reduce rejection risk.</p>
+      </div>
+      <div class="card">
+        <div class="icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/></svg>
+        </div>
+        <h3>Real-time tracking</h3>
+        <p>Follow your application from submission to approval with a live status tracker.</p>
+      </div>
+      <div class="card">
+        <div class="icon-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 12L10 18L20 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Support when you need it</h3>
+        <p>Reach our support team by chat or email if anything about your application is unclear.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <span class="eyebrow">Traveler stories</span>
+      <h2>What our customers say</h2>
+    </div>
+    <div class="grid grid-3">
+      <div class="card testimonial-card">
+        <div class="stars">★★★★★</div>
+        <blockquote>"The step-by-step form made it easy to know exactly what documents I needed. My ETA came back in a day."</blockquote>
+        <div class="testimonial-author">
+          <div class="avatar-circle">MP</div>
+          <div><strong>Maria P.</strong><br><span style="font-size:0.8rem;color:var(--text-muted);">Traveled to Australia</span></div>
+        </div>
+      </div>
+      <div class="card testimonial-card">
+        <div class="stars">★★★★★</div>
+        <blockquote>"I liked being able to track the application status instead of just waiting on an email."</blockquote>
+        <div class="testimonial-author">
+          <div class="avatar-circle">JK</div>
+          <div><strong>James K.</strong><br><span style="font-size:0.8rem;color:var(--text-muted);">Traveled to Vietnam</span></div>
+        </div>
+      </div>
+      <div class="card testimonial-card">
+        <div class="stars">★★★★★</div>
+        <blockquote>"Support answered my question about passport validity within the hour. Made the process painless."</blockquote>
+        <div class="testimonial-author">
+          <div class="avatar-circle">AS</div>
+          <div><strong>Aisha S.</strong><br><span style="font-size:0.8rem;color:var(--text-muted);">Traveled to the UK</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta-band">
+      <h2>Ready to start your visa application?</h2>
+      <p>It takes about 10 minutes to complete the online form. Save your progress and finish anytime.</p>
+      <a href="apply.html" class="btn btn-primary">Start Your Application</a>
+    </div>
+  </div>
+</section>
+
+<div class="disclaimer-strip">
+  <div class="container">
+    OnlineVisaStore is an independent visa assistance service and is not affiliated with any government or embassy. Service fees are charged in addition to official government visa fees, where applicable.
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="brand" style="margin-bottom:14px;">
+          Online<span class="brand-accent">VisaStore</span>
+        </a>
+        <p>Independent online visa application assistance for travelers worldwide. We help you prepare, review and track your visa application.</p>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="countries.html">Countries &amp; Pricing</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Services</h4>
+        <ul>
+          <li><a href="apply.html">Start Application</a></li>
+          <li><a href="status.html">Track Application</a></li>
+          <li><a href="countries.html">Tourist Visas</a></li>
+          <li><a href="countries.html">Business Visas</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span data-year></span> OnlineVisaStore. All rights reserved.</span>
+      <span>support@onlinevisastore.com</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
